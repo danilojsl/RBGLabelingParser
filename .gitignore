@@ -1,6 +1,13 @@
+jni_include
 *.class
 
 # Package Files #
 *.jar
 *.war
 *.ear
+
+# running data #
+*.model
+*.test
+*.train
+/bin/

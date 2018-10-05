@@ -1,94 +1,115 @@
 
-### RBGParser
-=========
 
-This project is developed at Natural Language Processing group in MIT. The project contains a Java implementation of a syntactic dependency parser with tensor decomposition, described in the following papers:
+### Labeler
 
-[1] Tao Lei, Yu Xin, Yuan Zhang, Regina Barzilay and Tommi Jaakkola. Low-Rank Tensors for Scoring Dependency Structures.  ACL 2014. [PDF](http://people.csail.mit.edu/taolei/papers/acl2014.pdf)
 
-[2] Yuan Zhang, Tao Lei, Regina Barzilay, Tommi Jaakkola and Amir Globerson. Steps to Excellence: Simple Inference with Refined Scoring of Dependency Trees.  ACL 2014. [PDF](http://people.csail.mit.edu/yuanzh/papers/acl2014.pdf)
 
-[3] Yuan Zhang\*, Tao Lei\*, Regina Barzilay and Tommi Jaakkola. Greed is Good if Randomized: New Inference for Dependency Parsing. EMNLP 2014. [PDF](http://people.csail.mit.edu/taolei/papers/emnlp2014.pdf)
+This project is used to assign labels to an (unlabeled) dependency tree by a distributional representation learning technique for scoring and a dynamic programming algorithm for labeling. 
 
-This project is implemented by Tao Lei (taolei [at] csail.mit.edu) and Yuan Zhang (yuanzh [at] csail.mit.edu).
+
 
 =========
 
-<br>
 
-##### 1. Compilation
 
-To compile the project, first do a "make" in directory lib/SVDLIBC to compile the [SVD library](http://tedlab.mit.edu/~dr/SVDLIBC/). Next, make sure you have Java JDK installed on your machine and find the directory path of Java JNI include files. The directory should contains header files *jni.h* and *jni_md.h*. Take a look or directly use the shell script *make.sh* to compile the rest of the Java code. You have to replace the "jni_path" variable in *make.sh* with the correct JNI include path. Also, create a "bin" directory in the project directory before running *make.sh* script. 
+#### Usage
+
+
+
+##### 1. Compiling
+
+
+
+Make sure you have Java JDK installed on your machine, then run the following command to compile the Java code (please create a "bin" directory in the project directory before running it):
+
+```
+
+javac -d bin -sourcepath src -classpath "lib/trove.jar" src/parser/DependencyParser.java
+
+```
+
+
+
 
 
 <br> 
 
+
+
 ##### 2. Data Format
 
-The data format of this parser is the one used in CoNLL-X shared task, which describes a collection of annotated sentences (and the corresponding gold dependency structures). See more details of the format at [here](http://nextens.uvt.nl/depparse-wiki/DataFormat) and [here](https://code.google.com/p/clearparser/wiki/DataFormat#CoNLL-X_format_%28conll%29)
+
+
+We support CoNLL-09 (default) and CoNLL-06 (by specifying the argument "format:CONLL-06") data format.
+
+
+
 
 
 <br>
 
+
+
 ##### 3. Example Usage
+
+
 
 ###### 3.1 Basic Usage
 
-Take a look at *run.sh* as an example of running the parser. You could also run the parser for example as follows:
+
+
+Run the labeler by command:
 
 ```
+
 java -classpath "bin:lib/trove.jar" -Xmx20000m parser.DependencyParser \
+
   model-file:example.model \
+
   train train-file:example.train \
+
   test test-file:example.test \
+
+  pred-file:example.pred \
+
   output-file:example.out
+
 ```
 
-This will train a parser from the training data *example.train*, save the dependency model to the file *example.model*, evaluate this parser on the test data *example.test* and output dependency predictions to the file *example.out*.
+This will train the labeler from the training data *example.train*, save the labeling model to the file *example.model*, assign labels to (unlabeled) dependency trees in *example.pred* and evaluate against the test data *example.test* (*example.pred* and *example.test* should match except for the "HEAD" and "DEPREL" column). Labeling results are output to the file *example.out*.
+
+
+
 
 
 ###### 3.2 More Options
 
-The parser will train a 3rd-order parser by default. To train a 1st-order (arc-based) model, run the parser like this:
-```
-java -classpath "bin:lib/trove.jar" -Xmx20000m parser.DependencyParser \
-  model-file:example.model \
-  train train-file:example.train \
-  test test-file:example.test \
-  model:basic
-```
-The argument ``model:MODEL-TYPE'' specifies the model type (basic: 1st-order features, standard: 3rd-order features and full: high-order global features).
+
 
 There are many other possible running options. Here is a more complicated example:
+
 ```
+
 java -classpath "bin:lib/trove.jar" -Xmx20000m parser.DependencyParser \
+
   model-file:example.model \
+
   train train-file:example.train \
+
   test test-file:example.test \
-  output-file:example.out \
-  model:standard  C:1.0  iters:5  pruning:false R:20 gamma:0.3 thread:4
+
+  pred-file:example.pred \
+
+  output-file:example.out\
+
+  model:second  C:1.0  iters:5 \
+
+  R:100 R2:50 gammaLabel:0.3
+
 ```
-This will run a standard model with regularization *C=1.0*, number of training iteration *iters=5*, rank of the tensor *R=20*, number of threads in parallel *thread=4*, weight of the tensor component *gamma=0.3*, and no dependency arc pruning *pruning=false*. You may take a look at RBGParser/src/parser/Options.java to see a full list of possible options.
+
+This will run a 2nd-order model with regularization *C=1.0*, number of training iterations *iters=5*, rank of the first-order tensor *R=100* and second-order tensor *R2=50*, and weight of the traditional features in the scoring function *gammaLabel=0.3* (note that when traditional features incorporated, i.e. *gammaLabel*>0, the labeler will be significantly slowed down).
 
 
-###### 3.3 Using Word Embeddings
 
-To add unsupervised word embeddings (word vectors) as auxiliary features to the parser. Use option "word-vector:WORD-VECTOR-FILE":
-```
-java -classpath "bin:lib/trove.jar" -Xmx20000m parser.DependencyParser \
-  model-file:example.model \
-  train train-file:example.train \
-  test test-file:example.test \
-  model:basic \
-  word-vector:example.embeddings
-```
-The input file *example.embeddings* should be a text file specifying the real-value vectors of different words. Each line of the file should starts with the word, followed by a list of real numbers representing the vector of this word. For example:
-```
-this 0.01 0.2 -0.05 0.8 0.12
-and 0.13 -0.1 0.12 0.07 0.03
-to 0.11 0.01 0.15 0.08 0.23
-*UNKNOWN* 0.04 -0.14 0.03 0.04 0
-...
-...
-```
-There may be a special word \*UNKNOWN\* used for OOV (out-of-vocabulary) word. Each line should contain the same number of real numbers. 
+You may take a look at labeler/src/parser/Options.java to see the full list of possible options.

@@ -14,68 +14,44 @@
 
 package utils;
 
-//import gnu.trove.TObjectIntIterator;
-import gnu.trove.iterator.TObjectIntIterator;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
-import java.util.ArrayList;
 import java.io.*;
-import java.util.Iterator;
 
 public class Dictionary implements Serializable
 {
-	TObjectIntHashMap map;
+	private TObjectIntHashMap map;
 	
-    int numEntries;
-    boolean growthStopped = false;
+    private int numEntries;
+    private boolean growthStopped = false;
 
-    public Dictionary (int capacity)
+    private Dictionary (int capacity)
     {
     	this.map = new TObjectIntHashMap(capacity);
 		numEntries = 0;
     }
 
-    public Dictionary ()
+    Dictionary ()
     {
     	this (10000);
     }
-    
-    public Dictionary(Dictionary a)
-    {
-    	numEntries = a.numEntries;
-    	map = new TObjectIntHashMap(numEntries);    	
-    	for (TObjectIntIterator iter = a.map.iterator(); iter.hasNext();) {
-    		iter.advance();
-    		map.put(iter.key(), iter.value());
-    	}
-    }
 
     /** Return -1 (in old trove version) or 0 (in trove current verion) if entry isn't present. */
-    public int lookupIndex (Object entry, boolean addIfNotPresent)
+    public int lookupIndex (Object entry)
     {
 		if (entry == null)
 		    throw new IllegalArgumentException ("Can't lookup \"null\" in an Alphabet.");
 		int ret = map.get(entry);
-		if (ret <= 0 && !growthStopped && addIfNotPresent) {
+		if (ret <= 0 && !growthStopped) {
 			numEntries++;
 			ret = numEntries;
-		    map.put (entry, ret);
+		    map.put(entry, ret);
 		}
 		return ret;
     }
 
-    public int lookupIndex (Object entry)
-    {
-    	return lookupIndex (entry, true);
-    }
-	
     public Object[] toArray () {
     	return map.keys();
-    }
-
-    public boolean contains (Object entry)
-    {
-    	return map.contains (entry);
     }
 
     public int size ()
@@ -83,19 +59,9 @@ public class Dictionary implements Serializable
     	return numEntries;
     }
 
-    public void stopGrowth ()
+    void stopGrowth ()
     {
     	growthStopped = true;
-    }
-
-    public void allowGrowth ()
-    {
-    	growthStopped = false;
-    }
-
-    public boolean growthStopped ()
-    {
-    	return growthStopped;
     }
 
 
@@ -112,7 +78,7 @@ public class Dictionary implements Serializable
 	}
 	
 	private void readObject (ObjectInputStream in) throws IOException, ClassNotFoundException {
-		int version = in.readInt ();
+		in.readInt(); //Version, this is required to go to the next bit that has the useful information
 		numEntries = in.readInt();
 		map = (TObjectIntHashMap)in.readObject();
 		growthStopped = in.readBoolean();

@@ -12,24 +12,27 @@ public abstract class DependencyWriter {
 	BufferedWriter writer;
 	Options options;
 	String[] labels;
-	boolean first, isLabeled;
+	boolean first;
 	
 	public static DependencyWriter createDependencyWriter(Options options, DependencyPipe pipe) {
-		String format = options.format;
-		if (format.equals("CONLL")) {
-			return new CONLLWriter(options, pipe);
+		String format = options.getFormat();
+		if (format.equalsIgnoreCase("CONLL06") || format.equalsIgnoreCase("CONLL-06")) {
+			return new Conll06Writer(options, pipe);
+		} else if (format.equalsIgnoreCase("CONLLX") || format.equalsIgnoreCase("CONLL-X")) {
+			return new Conll06Writer(options, pipe);
+		} else if (format.equalsIgnoreCase("CONLL09") || format.equalsIgnoreCase("CONLL-09")) {
+			return new Conll09Writer(options, pipe);
 		} else {
 			System.out.printf("!!!!! Unsupported file format: %s%n", format);
-			return new CONLLWriter(options, pipe);
+			return new Conll06Writer(options, pipe);
 		}
 	}
 	
-	public abstract void writeInstance(DependencyInstance inst) throws IOException;
+	public abstract void writeInstance(DependencyInstance gold, int[] predDeps, int[] predLabs) throws IOException;
 	
 	public void startWriting(String file) throws IOException {
 		writer = new BufferedWriter(new FileWriter(file));
 		first = true;
-		isLabeled = options.learnLabel;
 	}
 	
 	public void close() throws IOException {

@@ -1,24 +1,19 @@
 package parser;
 
-import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import parser.Options.LearningMode;
-import parser.decoding.DependencyDecoder;
 import parser.io.DependencyReader;
 import parser.io.DependencyWriter;
-import parser.pruning.BasicArcPruner;
-import parser.sampling.RandomWalkSampler;
 
-public class DependencyParser implements Serializable {
+class DependencyParser implements Serializable {
 	
 	/**
 	 * 
@@ -27,67 +22,37 @@ public class DependencyParser implements Serializable {
 	
 	
 	protected Options options;
-	protected DependencyPipe pipe;
-	protected Parameters parameters;
-	
-	DependencyParser pruner;
-	
-	double pruningGoldHits = 0;
-	double pruningTotGold = 1e-30;
-	double pruningTotUparcs = 0;
-	double pruningTotArcs = 1e-30;
-	
-	public static void main(String[] args) 
+	private DependencyPipe pipe;
+	private Parameters parameters;
+
+    DependencyPipe getPipe() {
+        return pipe;
+    }
+
+    Parameters getParameters() {
+        return parameters;
+    }
+
+    public static void main(String[] args)
 		throws IOException, ClassNotFoundException, CloneNotSupportedException
 	{
 		
 		Options options = new Options();
-		options.processArguments(args);		
-		
-		DependencyParser pruner = null;
-		if (options.train && options.pruning && options.learningMode != LearningMode.Basic) {
-			Options prunerOptions = new Options();
-			prunerOptions.processArguments(args);
-			prunerOptions.maxNumIters = 10;
-			
-			prunerOptions.learningMode = LearningMode.Basic;
-			prunerOptions.pruning = false;
-			prunerOptions.test = false;
-			prunerOptions.learnLabel = false;
-			prunerOptions.gamma = 1.0;
-			prunerOptions.gammaLabel = 1.0;
-			
-			//pruner = new DependencyParser();
-			pruner = new BasicArcPruner();
-			pruner.options = prunerOptions;
-			
-			DependencyPipe pipe = new DependencyPipe(prunerOptions);
-			pruner.pipe = pipe;
-			
-			pipe.createAlphabets(prunerOptions.trainFile);
-			DependencyInstance[] lstTrain = pipe.createInstances(prunerOptions.trainFile);
-			
-			Parameters parameters = new Parameters(pipe, prunerOptions);
-			pruner.parameters = parameters;
-			
-			pruner.train(lstTrain);
-		}
 		
 		if (options.train) {
 			DependencyParser parser = new DependencyParser();
 			parser.options = options;
 			options.printOptions();
-			
+
 			DependencyPipe pipe = new DependencyPipe(options);
 			parser.pipe = pipe;
 			
-			if (options.pruning) parser.pruner = pruner;
-			
 			pipe.createAlphabets(options.trainFile);
-			DependencyInstance[] lstTrain = pipe.createInstances(options.trainFile);
 			
-			Parameters parameters = new Parameters(pipe, options);
-			parser.parameters = parameters;
+			DependencyInstance[] lstTrain = pipe.createInstances(options.trainFile);
+			pipe.pruneLabel(lstTrain);
+
+            parser.parameters = new Parameters(pipe, options);
 			
 			parser.train(lstTrain);
 			parser.saveModel();
@@ -95,121 +60,101 @@ public class DependencyParser implements Serializable {
 		
 		if (options.test) {
 			DependencyParser parser = new DependencyParser();
-			parser.options = options;			
-			
+			parser.options = options;
 			parser.loadModel();
-			parser.options.processArguments(args);
-			if (!options.train) parser.options.printOptions(); 
-			
-			System.out.printf(" Evaluating: %s%n", options.testFile);
-			parser.evaluateSet(true, false);
+			parser.predictDependency();
 		}
 		
 	}
 	
-    public void saveModel() throws IOException 
+    private void saveModel() throws IOException
     {
-    	ObjectOutputStream out = new ObjectOutputStream(
-    			new GZIPOutputStream(new FileOutputStream(options.modelFile)));
-    	out.writeObject(pipe);
-    	out.writeObject(parameters);
-    	out.writeObject(options);
-    	if (options.pruning && options.learningMode != LearningMode.Basic) 
-    		out.writeObject(pruner);
-    	out.close();
+        try (ObjectOutputStream out = new ObjectOutputStream(
+                new GZIPOutputStream(new FileOutputStream(options.modelFile)))) {
+            out.writeObject(pipe);
+            out.writeObject(parameters);
+            out.writeObject(options);
+        }
     }
 	
-    public void loadModel() throws IOException, ClassNotFoundException 
+    private void loadModel() throws IOException, ClassNotFoundException
     {
-        ObjectInputStream in = new ObjectInputStream(
-                new GZIPInputStream(new FileInputStream(options.modelFile)));    
-        pipe = (DependencyPipe) in.readObject();
-        parameters = (Parameters) in.readObject();
-        options = (Options) in.readObject();
-        if (options.pruning && options.learningMode != LearningMode.Basic)
-        	//pruner = (DependencyParser) in.readObject();
-        	pruner = (BasicArcPruner) in.readObject();
-        pipe.options = options;
-        parameters.options = options;        
-        in.close();
+        try (ObjectInputStream in = new ObjectInputStream(
+                new GZIPInputStream(new FileInputStream(options.modelFile)))) {
+            pipe = (DependencyPipe) in.readObject();
+            parameters = (Parameters) in.readObject();
+            options = (Options) in.readObject();
+            pipe.setOptions(options);
+        }
         pipe.closeAlphabets();
     }
-    
-	public void printPruningStats()
-	{
-		System.out.printf("  Pruning Recall: %.4f\tEffcy: %.4f%n",
-				pruningGoldHits / pruningTotGold,
-				pruningTotUparcs / pruningTotArcs);
-	}
 	
-	public void resetPruningStats()
-	{
-		pruningGoldHits = 0;
-		pruningTotGold = 1e-30;
-		pruningTotUparcs = 0;
-		pruningTotArcs = 1e-30;
-	}
-	
-    public void train(DependencyInstance[] lstTrain) 
-    	throws IOException, CloneNotSupportedException 
+    private void train(DependencyInstance[] lstTrain)
+    	throws IOException, CloneNotSupportedException
     {
-    	long start = 0, end = 0;
+    	long start;
+        long end;
     	
-        if (options.R > 0 && options.gamma < 1 && options.initTensorWithPretrain) {
+        if ((options.R > 0 || options.R2 > 0) && options.gammaLabel < 1 && options.initTensorWithPretrain) {
 
         	Options optionsBak = (Options) options.clone();
-        	options.learningMode = LearningMode.Basic;
         	options.R = 0;
-        	options.gamma = 1.0;
-        	options.gammaLabel = 1.0;
-        	options.maxNumIters = options.numPretrainIters;
-            options.useHO = false;
-        	parameters.gamma = 1.0;
-        	parameters.gammaLabel = 1.0;
-        	parameters.rank = 0;
-    		System.out.println("=============================================");
-    		System.out.printf(" Pre-training:%n");
-    		System.out.println("=============================================");
-    		
+        	options.R2 = 0;
+        	options.gammaLabel = 1.0f;
+			optionsBak.maxNumIters = options.numPretrainIters;
+        	parameters.setRank(0);
+        	parameters.setRank2(0);
+        	parameters.setGammaL(1.0f);
+
+    		System.out.printf("Pre-training:%n");
+
     		start = System.currentTimeMillis();
 
     		System.out.println("Running MIRA ... ");
     		trainIter(lstTrain, false);
     		System.out.println();
     		
+    		options = optionsBak;
+    		parameters.setRank(options.R);
+        	parameters.setRank2(options.R2);
+        	parameters.setGammaL(options.gammaLabel);
+    		
     		System.out.println("Init tensor ... ");
-    		LowRankParam tensor = new LowRankParam(parameters);
-    		pipe.fillParameters(tensor, parameters);
-    		tensor.decompose(1, parameters);
+    		int n = parameters.getNumberWordFeatures();
+    		int d = parameters.getDL();
+        	LowRankTensor tensor = new LowRankTensor(new int[] {n, n, d}, options.R);
+        	LowRankTensor tensor2 = new LowRankTensor(new int[] {n, n, n, d, d}, options.R2);
+        	pipe.getSynFactory().fillParameters(tensor, tensor2, parameters);
+        	
+        	ArrayList<float[][]> param = new ArrayList<>();
+        	param.add(parameters.getU());
+        	param.add(parameters.getV());
+        	param.add(parameters.getWL());
+        	tensor.decompose(param);
+        	if (options.isUseGP()) {
+        		ArrayList<float[][]> param2 = new ArrayList<>();
+        		param2.add(parameters.getU2());
+        		param2.add(parameters.getV2());
+        		param2.add(parameters.getW2());
+            	param2.add(parameters.getX2L());
+            	param2.add(parameters.getY2L());
+            	tensor2.decompose(param2);
+        	}
+        	parameters.assignTotal();
+        	parameters.printStat();
+        	
             System.out.println();
     		end = System.currentTimeMillis();
-    		
-    		options.learningMode = optionsBak.learningMode;
-    		options.R = optionsBak.R;
-    		options.gamma = optionsBak.gamma;
-    		options.gammaLabel = optionsBak.gammaLabel;
-    		options.maxNumIters = optionsBak.maxNumIters;
-            options.useHO = optionsBak.useHO;
-    		parameters.rank = optionsBak.R;
-    		parameters.gamma = optionsBak.gamma;
-    		parameters.gammaLabel = optionsBak.gammaLabel;
-    		parameters.clearTheta();
-            parameters.printUStat();
-            parameters.printVStat();
-            parameters.printWStat();
             System.out.println();
             System.out.printf("Pre-training took %d ms.%n", end-start);    		
-    		System.out.println("=============================================");
-    		System.out.println();	    
+    		System.out.println();
 
         } else {
-        	parameters.randomlyInitUVW();
+        	parameters.randomlyInit();
         }
         
-		System.out.println("=============================================");
 		System.out.printf(" Training:%n");
-		System.out.println("=============================================");
-		
+
 		start = System.currentTimeMillis();
 
 		System.out.println("Running MIRA ... ");
@@ -219,216 +164,97 @@ public class DependencyParser implements Serializable {
 		end = System.currentTimeMillis();
 		
 		System.out.printf("Training took %d ms.%n", end-start);    		
-		System.out.println("=============================================");
-		System.out.println();		    	
+		System.out.println();
     }
     
-    public void trainIter(DependencyInstance[] lstTrain, boolean evalAndSave) throws IOException
+    private void trainIter(DependencyInstance[] lstTrain, boolean evalAndSave) throws IOException
     {
-
-    	DependencyDecoder decoder = DependencyDecoder
-    			.createDependencyDecoder(options);
-    	
-    	int N = lstTrain.length;
-    	int printPeriod = 10000 < N ? N/10 : 1000;
+    	int printPeriod = 10000 < lstTrain.length ? lstTrain.length/10 : 1000;
     	
     	for (int iIter = 0; iIter < options.maxNumIters; ++iIter) {
-    	    
-    		if (pruner != null) pruner.resetPruningStats();
-    		
-            // use this offset to change the udpate ordering of U, V and W
-            // when N is a multiple of 3, such that U, V and W get updated
-            // on each sentence.
-            int offset = (N % 3 == 0) ? iIter : 0;
 
-    		long start = 0;
+    		long start;
     		double loss = 0;
-    		int uas = 0, tot = 0;
-    		start = System.currentTimeMillis();
-                		    		
-    		for (int i = 0; i < N; ++i) {
+    		int las = 0;
+            int tot = 0;
+    		start = System.currentTimeMillis();	
+    		
+    		for (int i = 0; i < lstTrain.length; ++i) {
     			
     			if ((i + 1) % printPeriod == 0) {
 				System.out.printf("  %d (time=%ds)", (i+1),
 					(System.currentTimeMillis()-start)/1000);
     			}
 
-    			//DependencyInstance inst = new DependencyInstance(lstTrain[i]);
-    			DependencyInstance inst = lstTrain[i];
-    			LocalFeatureData lfd = new LocalFeatureData(inst, this, true);
-    		    GlobalFeatureData gfd = new GlobalFeatureData(lfd);
-    		    
-    		    int n = inst.length;
-    		    
-    		    DependencyInstance predInst = decoder.decode(inst, lfd, gfd, true);
-
-        		int ua = evaluateUnlabelCorrect(inst, predInst), la = 0;
-        		if (options.learnLabel)
-        			la = evaluateLabelCorrect(inst, predInst);        		
-        		uas += ua;
+    			DependencyInstance dependencyInstance = lstTrain[i];
+    			LocalFeatureData lfd = new LocalFeatureData(dependencyInstance, this);
+    		    int n = dependencyInstance.getLength();
+    		    int[] predDeps = dependencyInstance.getHeads();
+    		    int[] predLabs = new int [n];
+    		        		
+        		lfd.predictLabels(predDeps, predLabs, true);
+        		int la = evaluateLabelCorrect(dependencyInstance.getHeads(), dependencyInstance.getDeplbids(),
+											  predDeps, predLabs);
+    			if (la != n-1) {
+    				loss += parameters.updateLabel(dependencyInstance, predDeps, predLabs, lfd,
+    						iIter * lstTrain.length + i + 1);
+    			}
+        		las += la;
         		tot += n-1;
-        		
-        		if ((options.learnLabel && la != n-1) ||
-        				(!options.learnLabel && ua != n-1)) {
-        			loss += parameters.update(inst, predInst, lfd, gfd,
-        					iIter * N + i + 1, offset);
-                }
-
     		}
-    		System.out.printf("%n  Iter %d\tloss=%.4f\tuas=%.4f\t[%ds]%n", iIter+1,
-    				loss, uas/(tot+0.0),
+
+    		tot = tot == 0 ? 1 : tot;
+
+    		System.out.printf("%n  Iter %d\tloss=%.4f\tlas=%.4f\t[%ds]%n", iIter+1,
+    				loss, las/(tot +0.0),
     				(System.currentTimeMillis() - start)/1000);
+    		System.out.println();
     		
-    		if (options.learningMode != LearningMode.Basic && options.pruning && pruner != null)
-    			pruner.printPruningStats();
-    		
-    		// evaluate on a development set
-    		if (evalAndSave && options.test && ((iIter+1) % 1 == 0 || iIter+1 == options.maxNumIters)) {		
-    			System.out.println();
-	  			System.out.println("_____________________________________________");
-	  			System.out.println();
-	  			System.out.printf(" Evaluation: %s%n", options.testFile);
-	  			System.out.println(); 
-                if (options.average) 
-                	parameters.averageParameters((iIter+1)*N);
-	  			double res = evaluateSet(false, false);
-                System.out.println();
-	  			System.out.println("_____________________________________________");
-	  			System.out.println();
-                if (options.average) 
-                	parameters.unaverageParameters();
-    		} 
-    	}
-    	
-    	if (evalAndSave && options.average) {
-            parameters.averageParameters(options.maxNumIters * N);
+    		parameters.printStat();
     	}
 
-        decoder.shutdown();
     }
     
-    public int evaluateUnlabelCorrect(DependencyInstance act, DependencyInstance pred) 
+    private int evaluateLabelCorrect(int[] actDeps, int[] actLabs, int[] predDeps, int[] predLabs)
     {
     	int nCorrect = 0;
-    	for (int i = 1, N = act.length; i < N; ++i) {
-    		if (act.heads[i] == pred.heads[i])
-    			++nCorrect;
-    	}    		
-    	return nCorrect;
-    }
-    
-    public int evaluateLabelCorrect(DependencyInstance act, DependencyInstance pred) 
-    {
-    	int nCorrect = 0;
-    	for (int i = 1, N = act.length; i < N; ++i) {
-    		if (act.heads[i] == pred.heads[i] && act.deplbids[i] == pred.deplbids[i])
+    	for (int i = 1, N = actDeps.length; i < N; ++i) {
+    		if (actDeps[i] == predDeps[i] && actLabs[i] == predLabs[i])
     			++nCorrect;
     	}    		  		
     	return nCorrect;
     }
     
-    public static int evaluateUnlabelCorrect(DependencyInstance inst, 
-    		DependencyInstance pred, boolean evalWithPunc) 
-    {
-    	int nCorrect = 0;    	
-    	for (int i = 1, N = inst.length; i < N; ++i) {
-
-            if (!evalWithPunc)
-            	if (inst.forms[i].matches("[-!\"#%&'()*,./:;?@\\[\\]_{}、]+")) continue;
-
-    		if (inst.heads[i] == pred.heads[i]) ++nCorrect;
-    	}    		
-    	return nCorrect;
-    }
-    
-    public static int evaluateLabelCorrect(DependencyInstance inst, 
-    		DependencyInstance pred, boolean evalWithPunc) 
-    {
-    	int nCorrect = 0;    	
-    	for (int i = 1, N = inst.length; i < N; ++i) {
-
-            if (!evalWithPunc)
-            	if (inst.forms[i].matches("[-!\"#%&'()*,./:;?@\\[\\]_{}、]+")) continue;
-
-    		if (inst.heads[i] == pred.heads[i] && inst.deplbids[i] == pred.deplbids[i]) ++nCorrect;
-    	}    		
-    	return nCorrect;
-    }
-    
-    public double evaluateSet(boolean output, boolean evalWithPunc)
+    private void predictDependency()
     		throws IOException {
-    	
-    	if (pruner != null) pruner.resetPruningStats();
-    	
-    	DependencyReader reader = DependencyReader.createDependencyReader(options);
-    	reader.startReading(options.testFile);
-    	
+
+        //Initialize parameters for prediction files
+    	DependencyReader predictionReader = DependencyReader.createDependencyReader(options);
+    	predictionReader.startReading(options.predFile);
 
     	DependencyWriter writer = null;
-    	if (output && options.outFile != null) {
+    	if (options.outFile != null) {
     		writer = DependencyWriter.createDependencyWriter(options, pipe);
     		writer.startWriting(options.outFile);
     	}
-    	
-    	DependencyDecoder decoder = DependencyDecoder.createDependencyDecoder(options);   	
-    	int nUCorrect = 0, nLCorrect = 0;
-    	int nDeps = 0, nWhole = 0, nSents = 0;
-    	
-		long start = System.currentTimeMillis();
-    	
-    	DependencyInstance inst = pipe.createInstance(reader);    	
-    	while (inst != null) {
-    		LocalFeatureData lfd = new LocalFeatureData(inst, this, true);
-    		GlobalFeatureData gfd = new GlobalFeatureData(lfd); 
-    		
-    		++nSents;
+
+    	DependencyInstance predictionDependencyInstance = pipe.createInstance(predictionReader);
+    	while (predictionDependencyInstance != null) {
+
+    		LocalFeatureData localFeatureData = new LocalFeatureData(predictionDependencyInstance, this);
             
-            int nToks = 0;
-            if (evalWithPunc)
-    		    nToks = (inst.length - 1);
-            else {
-                for (int i = 1; i < inst.length; ++i) {
-                	if (inst.forms[i].matches("[-!\"#%&'()*,./:;?@\\[\\]_{}、]+")) continue;
-                    ++nToks;
-                }
-            }
-            nDeps += nToks;
-    		    		
-            DependencyInstance predInst = decoder.decode(inst, lfd, gfd, false);
-
-    		int ua = evaluateUnlabelCorrect(inst, predInst, evalWithPunc), la = 0;
-    		if (options.learnLabel)
-    			la = evaluateLabelCorrect(inst, predInst, evalWithPunc);
-    		nUCorrect += ua;
-    		nLCorrect += la;
-    		if ((options.learnLabel && la == nToks) ||
-    				(!options.learnLabel && ua == nToks)) 
-    			++nWhole;
-    		
+    		int numberOfTokensInSentence = predictionDependencyInstance.getLength();
+    		int[] predictedHeads = predictionDependencyInstance.getHeads();
+		    int[] predictedLabels = new int [numberOfTokensInSentence];
+            localFeatureData.predictLabels(predictedHeads, predictedLabels, false);
+            
     		if (writer != null) {
-    			inst.heads = predInst.heads;
-    			inst.deplbids = predInst.deplbids;
-    			writer.writeInstance(inst);
+    			writer.writeInstance(predictionDependencyInstance, predictedHeads, predictedLabels);
     		}
-    		
-    		inst = pipe.createInstance(reader);
+    		predictionDependencyInstance = pipe.createInstance(predictionReader);
     	}
-    	
-    	reader.close();
-    	if (writer != null) writer.close();
-    	
-    	System.out.printf("  Tokens: %d%n", nDeps);
-    	System.out.printf("  Sentences: %d%n", nSents);
-    	System.out.printf("  UAS=%.6f\tLAS=%.6f\tCAS=%.6f\t[%ds]%n",
-    			(nUCorrect+0.0)/nDeps,
-    			(nLCorrect+0.0)/nDeps,
-    			(nWhole + 0.0)/nSents,
-    			(System.currentTimeMillis() - start)/1000);
-    	if (options.pruning && options.learningMode != LearningMode.Basic && pruner != null)
-    		pruner.printPruningStats();
-        
-        decoder.shutdown();
 
-    	return (nUCorrect+0.0)/nDeps;
+    	predictionReader.close();
+    	if (writer != null) writer.close();
     }
 }

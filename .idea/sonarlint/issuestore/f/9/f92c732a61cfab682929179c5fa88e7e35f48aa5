@@ -1,0 +1,6 @@
+
+esquid:S00116""MRename this field "R2" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¬ó
+squid:S11860"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(¶õÚ¯ûÿÿÿÿ
+osquid:S29755"SRemove this "clone" implementation; use a copy constructor or copy factory instead.(ŒÉ¯æşÿÿÿÿ
+dsquid:S00116"LRename this field "C" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¶œ¢¸
+dsquid:S00116!"LRename this field "R" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ì¹ËŒ

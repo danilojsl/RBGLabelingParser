@@ -1,0 +1,15 @@
+1	The	the	the	DT	DT	_	_	4	_	NMOD
+2	most	most	most	RBS	RBS	_	_	3	_	AMOD
+3	troublesome	troublesome	troublesome	JJ	JJ	_	_	4	_	NMOD
+4	report	report	report	NN	NN	_	_	5	_	SBJ
+5	may	may	may	MD	MD	_	_	0	_	ROOT
+6	be	be	be	VB	VB	_	_	5	_	VC
+7	the	the	the	DT	DT	_	_	11	_	NMOD
+8	August	august	august	NNP	NNP	_	_	11	_	NMOD
+9	merchandise	merchandise	merchandise	NN	NN	_	_	10	_	NMOD
+10	trade	trade	trade	NN	NN	_	_	11	_	NMOD
+11	deficit	deficit	deficit	NN	NN	_	_	6	_	PRD
+12	due	due	due	JJ	JJ	_	_	13	_	AMOD
+13	out	out	out	IN	IN	_	_	11	_	APPO
+14	tomorrow	tomorrow	tomorrow	NN	NN	_	_	13	_	TMP
+15	.	.	.	.	.	_	_	5	_	P

@@ -1,0 +1,52 @@
+
+osquid:CommentedOutCodeLineé"<This block of commented-out lines of code should be removed.(±¯âëþÿÿÿÿ8ˆ¯§Ôâ,
+Asquid:S1659Ú""Declare "wpW2" on a separate line.(µ±ö†8ˆ¯§Ôâ,
+vsquid:S00117Ó"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ÿùœ”úÿÿÿÿ8ˆ¯§Ôâ,
+psquid:S00117à"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(“ÂûW8ˆ¯§Ôâ,
+bsquid:HiddenFieldCheckÄ"8Rename "dW2" which hides the field declared at line 115.(´³ûË8ˆ¯§Ôâ,
+lsquid:S00116J"MRename this field "V2" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ï˜«°8ˆ¯§Ôâ,
+osquid:CommentedOutCodeLineý"<This block of commented-out lines of code should be removed.(±¯âëþÿÿÿÿ8ˆ¯§Ôâ,
+dsquid:S00116"LRename this field "C" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ï¬÷„
+Asquid:S1659ü""Declare "wpV2" on a separate line.(µ±ö†8ˆ¯§Ôâ,
+bsquid:HiddenFieldCheckõ"8Rename "dWL" which hides the field declared at line 112.(ÿ•°‚8ˆ¯§Ôâ,
+gsquid:HiddenFieldCheckª"8Rename "dV2" which hides the field declared at line 114.(Üíà›ûÿÿÿÿ8ˆ¯§Ôâ,
+w
+squid:S135«"YReduce the total number of break and continue statements in this loop to use at most one.(ƒý­8ˆ¯§Ôâ,
+qsquid:S00117ç"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(›¾ð¸8ˆ¯§Ôâ,
+psquid:S00117Ê"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(“ÂûW8ˆ¯§Ôâ,
+rsquid:S00116b"NRename this field "Y2L" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(üîßýÿÿÿÿ8ˆ¯§Ôâ,
+Esquid:S1659ò"!Declare "wpV" on a separate line.(Î«¶Äøÿÿÿÿ8ˆ¯§Ôâ,
+asquid:HiddenFieldCheckË"7Rename "dU" which hides the field declared at line 110.(²‘žß8ˆ¯§Ôâ,
+@squid:S1659ü"!Declare "max" on a separate line.(å¥Õž8ˆ¯§Ôâ,
+lsquid:S00116#"MRename this field "DL" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(øûŠË8ª„úÓâ,
+psquid:S00116:"LRename this field "V" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÆÙ™³ÿÿÿÿÿ8ˆ¯§Ôâ,
+psquid:S00117þ"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(“ÂûW8ˆ¯§Ôâ,
+asquid:HiddenFieldChecká"7Rename "dV" which hides the field declared at line 111.(‚„êŽ8ˆ¯§Ôâ,
+qsquid:S3776è"RRefactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed.(Ûý”ø8ˆ¯§Ôâ,
+lsquid:S00116K"MRename this field "W2" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(—³³¹8ˆ¯§Ôâ,
+qsquid:S00117Û"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.( ½‚§8ˆ¯§Ôâ,
+vsquid:S00117î"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(»¶ž•ûÿÿÿÿ8ˆ¯§Ôâ,
+w
+squid:S135‘"YReduce the total number of break and continue statements in this loop to use at most one.(ƒý­8ˆ¯§Ôâ,
+gsquid:HiddenFieldCheck"8Rename "dU2" which hides the field declared at line 113.(–Ä“îÿÿÿÿÿ8ˆ¯§Ôâ,
+psquid:S00117©"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(“ÂûW8ˆ¯§Ôâ,
+hsquid:HiddenFieldCheckÿ"9Rename "dY2L" which hides the field declared at line 117.(ïº¿ÿÿÿÿÿ8ˆ¯§Ôâ,
+qsquid:S00116I"MRename this field "U2" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(†÷ë‘ùÿÿÿÿ8ˆ¯§Ôâ,
+gsquid:HiddenFieldCheck–"8Rename "rank" which hides the field declared at line 30.(ÃÆ±Íþÿÿÿÿ8ˆ¯§Ôâ,
+qsquid:S00116;"MRename this field "WL" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(éþ¾¦ýÿÿÿÿ8ˆ¯§Ôâ,
+psquid:S00117Ã"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(“ÂûW8ˆ¯§Ôâ,
+rsquid:S00116L"NRename this field "X2L" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ëÔ•éþÿÿÿÿ8ˆ¯§Ôâ,
+w
+squid:S135Þ"YReduce the total number of break and continue statements in this loop to use at most one.(ƒý­8ˆ¯§Ôâ,
+psquid:S00117ô"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(“ÂûW8ˆ¯§Ôâ,
+Asquid:S1659Ú""Declare "wpV2" on a separate line.(µ±ö†8ˆ¯§Ôâ,
+w
+squid:S135€"YReduce the total number of break and continue statements in this loop to use at most one.(ƒý­8ˆ¯§Ôâ,
+psquid:S00116""LRename this field "T" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÙÕÇ­üÿÿÿÿ8ª„úÓâ,
+psquid:S00117Ü"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(“ÂûW8ˆ¯§Ôâ,
+w
+squid:S135Å"YReduce the total number of break and continue statements in this loop to use at most one.(ƒý­8ˆ¯§Ôâ,
+csquid:HiddenFieldCheckÝ"9Rename "dX2L" which hides the field declared at line 116.(Œæá8ˆ¯§Ôâ,
+psquid:S00117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(“ÂûW8ˆ¯§Ôâ,
+Asquid:S1659ü""Declare "wpW2" on a separate line.(µ±ö†8ˆ¯§Ôâ,
+psquid:S001169"LRename this field "U" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(È»‚üÿÿÿÿ8ˆ¯§Ôâ,

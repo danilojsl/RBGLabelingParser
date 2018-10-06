@@ -15,9 +15,6 @@ import parser.io.DependencyWriter;
 
 class DependencyParser implements Serializable {
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	
 	
@@ -90,7 +87,7 @@ class DependencyParser implements Serializable {
     }
 	
     private void train(DependencyInstance[] lstTrain)
-    	throws IOException, CloneNotSupportedException
+    	throws CloneNotSupportedException
     {
     	long start;
         long end;
@@ -111,7 +108,7 @@ class DependencyParser implements Serializable {
     		start = System.currentTimeMillis();
 
     		System.out.println("Running MIRA ... ");
-    		trainIter(lstTrain, false);
+    		trainIter(lstTrain);
     		System.out.println();
     		
     		options = optionsBak;
@@ -158,7 +155,7 @@ class DependencyParser implements Serializable {
 		start = System.currentTimeMillis();
 
 		System.out.println("Running MIRA ... ");
-		trainIter(lstTrain, true);
+		trainIter(lstTrain);
 		System.out.println();
 		
 		end = System.currentTimeMillis();
@@ -167,7 +164,7 @@ class DependencyParser implements Serializable {
 		System.out.println();
     }
     
-    private void trainIter(DependencyInstance[] lstTrain, boolean evalAndSave) throws IOException
+    private void trainIter(DependencyInstance[] lstTrain)
     {
     	int printPeriod = 10000 < lstTrain.length ? lstTrain.length/10 : 1000;
     	

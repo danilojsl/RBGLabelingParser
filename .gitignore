@@ -1,9 +1,6 @@
 jni_include
 *.class
 
-# Package Files #
-*.jar
-
 # running data #
 *.model
 *.out

@@ -3,11 +3,9 @@ jni_include
 
 # Package Files #
 *.jar
-*.war
-*.ear
 
 # running data #
 *.model
-*.test
-*.train
+*.out
 /bin/
+/.idea/

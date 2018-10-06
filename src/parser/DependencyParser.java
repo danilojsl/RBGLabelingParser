@@ -14,7 +14,7 @@ import parser.io.DependencyReader;
 import parser.io.DependencyWriter;
 
 class DependencyParser implements Serializable {
-	
+
 	private static final long serialVersionUID = 1L;
 	
 	

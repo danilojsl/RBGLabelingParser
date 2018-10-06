@@ -7,5 +7,6 @@ jni_include
 # running data #
 *.model
 *.out
-/bin/
-/.idea/
+bin/
+tmp/
+.idea/

@@ -1,24 +1,0 @@
-
-qsquid:S00117³"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(îñî‚8Ë Êã,
-qsquid:S00117£"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(‰ßµ‰8Ë Êã,
-qsquid:S00117ã"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(îñî‚8Ë Êã,
-qsquid:S00117¢"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(“ÔÆ8Ë Êã,
-vsquid:S00117¦"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÿŞ¶Šûÿÿÿÿ8Ë Êã,
-vsquid:S00117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¯„‰ºıÿÿÿÿ8Ë Êã,
-psquid:S3776ú"RRefactor this method to reduce its Cognitive Complexity from 69 to the 15 allowed.(ÇËÖ8Ë Êã,
-vsquid:S00117²"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.( Î–ÿÿÿÿÿ8Ë Êã,
-wsquid:S3776ç
-"SRefactor this method to reduce its Cognitive Complexity from 117 to the 15 allowed.(æûò‡øÿÿÿÿ8Ë Êã,
-vsquid:S00117§"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¯„‰ºıÿÿÿÿ8Ë Êã,
-vsquid:S00117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÿŞ¶Šûÿÿÿÿ8Ë Êã,
-qsquid:S00117´"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ûÓ¾ö8Ë Êã,
-vsquid:S3776§"RRefactor this method to reduce its Cognitive Complexity from 20 to the 15 allowed.(Ë×Ñùûÿÿÿÿ8Ë Êã,
-qsquid:S00117Œ"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¨±¸8Ë Êã,
-qsquid:S3776ª"RRefactor this method to reduce its Cognitive Complexity from 32 to the 15 allowed.(üôÓ‹8Ë Êã,
-qsquid:S00117¥"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¨±¸8Ë Êã,
-vsquid:S00117â"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.( Î–ÿÿÿÿÿ8Ë Êã,
-qsquid:S00117ä"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ûÓ¾ö8Ë Êã,
-|
-squid:S135í
-"YReduce the total number of break and continue statements in this loop to use at most one.(Â½¿ùşÿÿÿÿ8Ë Êã,
-vsquid:S00117¤"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ã„æøÿÿÿÿ8Ë Êã,

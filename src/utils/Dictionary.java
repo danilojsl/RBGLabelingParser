@@ -20,6 +20,10 @@ import java.io.*;
 
 public class Dictionary implements Serializable
 {
+
+	// Serialization
+	private static final long serialVersionUID = 1;
+
 	private TObjectIntHashMap map;
 	
     private int numEntries;
@@ -64,24 +68,4 @@ public class Dictionary implements Serializable
     	growthStopped = true;
     }
 
-
-    // Serialization 
-		
-    private static final long serialVersionUID = 1;
-    private static final int CURRENT_SERIAL_VERSION = 0;
-
-    private void writeObject (ObjectOutputStream out) throws IOException {
-		out.writeInt (CURRENT_SERIAL_VERSION);
-		out.writeInt (numEntries);
-		out.writeObject(map);
-		out.writeBoolean (growthStopped);
-	}
-	
-	private void readObject (ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.readInt(); //Version, this is required to go to the next bit that has the useful information
-		numEntries = in.readInt();
-		map = (TObjectIntHashMap)in.readObject();
-		growthStopped = in.readBoolean();
-    }
-	
 }

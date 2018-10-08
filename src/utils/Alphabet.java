@@ -2,14 +2,13 @@ package utils;
 
 import gnu.trove.map.hash.TLongIntHashMap;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 
 public class Alphabet implements Serializable
 {
+	// Serialization
+	private static final long serialVersionUID = 1;
 	private TLongIntHashMap map;
     private int numEntries;
     private boolean growthStopped = false;
@@ -52,25 +51,6 @@ public class Alphabet implements Serializable
     public void stopGrowth ()
     {
     	growthStopped = true;
-    }
-
-    // Serialization 
-		
-    private static final long serialVersionUID = 1;
-    private static final int CURRENT_SERIAL_VERSION = 0;
-
-    private void writeObject (ObjectOutputStream out) throws IOException {
-		out.writeInt (CURRENT_SERIAL_VERSION);
-		out.writeInt (numEntries);
-		out.writeObject(map);
-		out.writeBoolean (growthStopped);
-	}
-	
-    private void readObject (ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.readInt();
-		numEntries = in.readInt();
-		map = (TLongIntHashMap)in.readObject();
-		growthStopped = in.readBoolean();
     }
 }
 	

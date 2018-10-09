@@ -11,8 +11,6 @@ public class Options implements Cloneable, Serializable {
 	String predFile = "example.pred";
 	String unimapFile = null;
 	String outFile = "example.out";
-	boolean train = true;
-	boolean test = true;
 	String wordVectorFile = null;
 	String modelFile = "example.model";
 	private String format = "CONLL-09";
@@ -26,7 +24,6 @@ public class Options implements Cloneable, Serializable {
 	int maxNumIters = 10;
 	boolean initTensorWithPretrain = true;
 
-	boolean average = true;
 	float C = 0.01f;
 	float gammaLabel = 0;
 	int R = 50;
@@ -60,8 +57,6 @@ public class Options implements Cloneable, Serializable {
     	System.out.println("pred-file: " + predFile);
     	System.out.println("model-name: " + modelFile);
         System.out.println("output-file: " + outFile);
-    	System.out.println("train: " + train);
-    	System.out.println("test: " + test);
         System.out.println("iters: " + maxNumIters);
         System.out.println("max-sent: " + maxNumSent);   
         System.out.println("gammaLabel: " + gammaLabel);

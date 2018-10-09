@@ -4,38 +4,43 @@ import java.io.IOException;
 
 public class TypedDependencyParser {
 
-    public static void main(String[] args)
-            throws IOException, ClassNotFoundException, CloneNotSupportedException
+    private Options options = new Options();
+
+    public static void main(String[] args) throws IOException, CloneNotSupportedException, ClassNotFoundException
+
     {
+        TypedDependencyParser typedDependencyParser = new TypedDependencyParser();
 
-        Options options = new Options();
+        typedDependencyParser.trainDependencyParser();
 
-        if (options.train) {
-            DependencyParser dependencyParser = new DependencyParser();
-            dependencyParser.setOptions(options);
-            options.printOptions();
+        typedDependencyParser.predictDependencyParser();
 
-            DependencyPipe pipe = new DependencyPipe(options);
-            dependencyParser.setPipe(pipe);
+    }
 
-            pipe.createAlphabets(options.trainFile);
+    private void trainDependencyParser() throws IOException, CloneNotSupportedException {
+        DependencyParser dependencyParser = new DependencyParser();
+        dependencyParser.setOptions(options);
+        options.printOptions();
 
-            DependencyInstance[] lstTrain = pipe.createInstances(options.trainFile);
-            pipe.pruneLabel(lstTrain);
+        DependencyPipe pipe = new DependencyPipe(options);
+        dependencyParser.setPipe(pipe);
 
-            dependencyParser.setParameters(new Parameters(pipe, options));
+        pipe.createAlphabets(options.trainFile);
 
-            dependencyParser.train(lstTrain);
-            dependencyParser.saveModel();
-        }
+        DependencyInstance[] lstTrain = pipe.createInstances(options.trainFile);
+        pipe.pruneLabel(lstTrain);
 
-        if (options.test) {
-            DependencyParser dependencyParser = new DependencyParser();
-            dependencyParser.setOptions(options);
-            dependencyParser.loadModel();
-            dependencyParser.predictDependency();
-        }
+        dependencyParser.setParameters(new Parameters(pipe, options));
 
+        dependencyParser.train(lstTrain);
+        dependencyParser.saveModel();
+    }
+
+    private void predictDependencyParser() throws IOException, ClassNotFoundException{
+        DependencyParser dependencyParser = new DependencyParser();
+        dependencyParser.setOptions(options);
+        dependencyParser.loadModel();
+        dependencyParser.predictDependency();
     }
 
 }

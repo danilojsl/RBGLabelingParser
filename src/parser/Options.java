@@ -23,7 +23,6 @@ public class Options implements Serializable {
     int numPretrainIters = 1;
 	int maxNumIters = 10;
 	boolean initTensorWithPretrain = true;
-
 	float C = 0.01f;
 	float gammaLabel = 0;
 	int R = 50;
@@ -45,8 +44,16 @@ public class Options implements Serializable {
 
 	}
 
-	public Options(Options options) {
-		this.maxNumSent = options.maxNumSent;
+	private Options(Options options) {
+        this.trainFile = options.trainFile;
+        this.predFile = options.predFile;
+        this.unimapFile = options.unimapFile;
+        this.outFile = options.outFile;
+        this.wordVectorFile = options.wordVectorFile;
+        this.modelFile = options.modelFile;
+        this.format = options.format;
+
+        this.maxNumSent = options.maxNumSent;
 		this.numPretrainIters = options.numPretrainIters;
 		this.maxNumIters = options.maxNumIters;
 		this.initTensorWithPretrain = options.initTensorWithPretrain;
@@ -54,9 +61,13 @@ public class Options implements Serializable {
 		this.gammaLabel = options.gammaLabel;
 		this.R = options.R;
 		this.R2 = options.R2;
+
+		this.bits = options.bits;
+		this.useGP = options.useGP;
 	}
 
 	static Options newInstance(Options options){
+        //Copy factory
     	return new Options(options);
 	}
 

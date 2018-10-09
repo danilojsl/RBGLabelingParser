@@ -65,19 +65,18 @@ class DependencyParser implements Serializable {
         pipe.closeAlphabets();
     }
 	
-    void train(DependencyInstance[] lstTrain)
-    	throws CloneNotSupportedException
+    void train(DependencyInstance[] dependencyInstances)
     {
     	long start;
         long end;
-    	
-        if ((options.R > 0 || options.R2 > 0) && options.gammaLabel < 1 && options.initTensorWithPretrain) {
 
-        	Options optionsBak = (Options) options.clone();
+    	if ((options.R > 0 || options.R2 > 0) && options.gammaLabel < 1 && options.initTensorWithPretrain) {
+
+        	Options optionsBackup = Options.newInstance(options);
         	options.R = 0;
         	options.R2 = 0;
         	options.gammaLabel = 1.0f;
-			optionsBak.maxNumIters = options.numPretrainIters;
+			optionsBackup.maxNumIters = options.numPretrainIters;
         	parameters.setRank(0);
         	parameters.setRank2(0);
         	parameters.setGammaL(1.0f);
@@ -87,10 +86,10 @@ class DependencyParser implements Serializable {
     		start = System.currentTimeMillis();
 
     		System.out.println("Running MIRA ... ");
-    		trainIter(lstTrain);
+    		trainIter(dependencyInstances);
     		System.out.println();
     		
-    		options = optionsBak;
+    		options = optionsBackup;
     		parameters.setRank(options.R);
         	parameters.setRank2(options.R2);
         	parameters.setGammaL(options.gammaLabel);
@@ -134,7 +133,7 @@ class DependencyParser implements Serializable {
 		start = System.currentTimeMillis();
 
 		System.out.println("Running MIRA ... ");
-		trainIter(lstTrain);
+		trainIter(dependencyInstances);
 		System.out.println();
 		
 		end = System.currentTimeMillis();
@@ -143,9 +142,9 @@ class DependencyParser implements Serializable {
 		System.out.println();
     }
     
-    private void trainIter(DependencyInstance[] lstTrain)
+    private void trainIter(DependencyInstance[] dependencyInstances)
     {
-    	int printPeriod = 10000 < lstTrain.length ? lstTrain.length/10 : 1000;
+    	int printPeriod = 10000 < dependencyInstances.length ? dependencyInstances.length/10 : 1000;
     	
     	for (int iIter = 0; iIter < options.maxNumIters; ++iIter) {
 
@@ -155,14 +154,14 @@ class DependencyParser implements Serializable {
             int tot = 0;
     		start = System.currentTimeMillis();	
     		
-    		for (int i = 0; i < lstTrain.length; ++i) {
+    		for (int i = 0; i < dependencyInstances.length; ++i) {
     			
     			if ((i + 1) % printPeriod == 0) {
 				System.out.printf("  %d (time=%ds)", (i+1),
 					(System.currentTimeMillis()-start)/1000);
     			}
 
-    			DependencyInstance dependencyInstance = lstTrain[i];
+    			DependencyInstance dependencyInstance = dependencyInstances[i];
     			LocalFeatureData lfd = new LocalFeatureData(dependencyInstance, this);
     		    int n = dependencyInstance.getLength();
     		    int[] predDeps = dependencyInstance.getHeads();
@@ -173,7 +172,7 @@ class DependencyParser implements Serializable {
 											  predDeps, predLabs);
     			if (la != n-1) {
     				loss += parameters.updateLabel(dependencyInstance, predDeps, predLabs, lfd,
-    						iIter * lstTrain.length + i + 1);
+    						iIter * dependencyInstances.length + i + 1);
     			}
         		las += la;
         		tot += n-1;

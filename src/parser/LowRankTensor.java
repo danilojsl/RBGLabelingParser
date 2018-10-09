@@ -26,15 +26,15 @@ public class LowRankTensor {
 	}
 	
 	void decompose(ArrayList<float[][]> param)
-	{	
-		ArrayList<float[][]> param2 = new ArrayList<>();
+	{
+	    ArrayList<float[][]> param2 = new ArrayList<>();
         for (float[][] x : param) {
             int n = x.length;
             param2.add(new float[rank][n]);
         }
 
 		double eps = 1e-6;
-		for (int i = 0; i < rank; ++i) {
+      	for (int i = 0; i < rank; ++i) {
 			ArrayList<float[]> a = new ArrayList<>();
 			for (int k = 0; k < dim; ++k) {
 				a.add(Utils.getRandomUnitVector(N[k]));
@@ -43,6 +43,7 @@ public class LowRankTensor {
 			int iter;
 			double norm = 0.0;
 			double lastnorm = Double.POSITIVE_INFINITY;
+
 			for (iter = 0; iter < MAX_ITER; ++iter) {
 				for (int k = 0; k < dim; ++k) {
 					float[] b = a.get(k);
@@ -63,9 +64,12 @@ public class LowRankTensor {
 						for (int p = 0; p < N[k]; ++p)
 							b[p] -= dot*param2.get(k)[j][p];
 					}
-					if (k < dim-1)
-						Utils.normalize(b);
-					else norm = Math.sqrt(Utils.squaredSum(b));
+
+					if (k < dim-1){
+                        Utils.normalize(b);
+                    } else {
+                        norm = Math.sqrt(Utils.squaredSum(b));
+                    }
 				}
 				if (lastnorm != Double.POSITIVE_INFINITY && Math.abs(norm-lastnorm) < eps)
 					break;

@@ -3,7 +3,7 @@ package parser;
 import java.io.Serializable;
 
 
-public class Options implements Cloneable, Serializable {
+public class Options implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 		
@@ -42,16 +42,25 @@ public class Options implements Cloneable, Serializable {
     }
 
     public Options() {
-		
+
 	}
-	
-	@Override
-	public Object clone() throws CloneNotSupportedException 
-	{
-		return super.clone();
+
+	public Options(Options options) {
+		this.maxNumSent = options.maxNumSent;
+		this.numPretrainIters = options.numPretrainIters;
+		this.maxNumIters = options.maxNumIters;
+		this.initTensorWithPretrain = options.initTensorWithPretrain;
+		this.C = options.C;
+		this.gammaLabel = options.gammaLabel;
+		this.R = options.R;
+		this.R2 = options.R2;
 	}
-    
-    public void printOptions() {
+
+	static Options newInstance(Options options){
+    	return new Options(options);
+	}
+
+    void printOptions() {
     	System.out.println("------\nFLAGS\n------");
     	System.out.println("train-file: " + trainFile);
     	System.out.println("pred-file: " + predFile);

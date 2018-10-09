@@ -6,7 +6,7 @@ public class TypedDependencyParser {
 
     private Options options = new Options();
 
-    public static void main(String[] args) throws IOException, CloneNotSupportedException, ClassNotFoundException
+    public static void main(String[] args) throws IOException, ClassNotFoundException
 
     {
         TypedDependencyParser typedDependencyParser = new TypedDependencyParser();
@@ -17,7 +17,7 @@ public class TypedDependencyParser {
 
     }
 
-    private void trainDependencyParser() throws IOException, CloneNotSupportedException {
+    private void trainDependencyParser() throws IOException {
         DependencyParser dependencyParser = new DependencyParser();
         dependencyParser.setOptions(options);
         options.printOptions();

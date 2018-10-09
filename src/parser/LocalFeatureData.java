@@ -157,7 +157,7 @@ class LocalFeatureData {
 							}
 							else s2 = Float.NEGATIVE_INFINITY;
 						}
-						labelScores[mod][p][q] = s1 + s2 + (addLoss && dependencyInstance.getDeplbids()[mod] != p ? 1.0f : 0.0f);
+						labelScores[mod][p][q] = s1 + s2 + (addLoss && dependencyInstance.getDependencyLabelIds()[mod] != p ? 1.0f : 0.0f);
 					}
 				}
 				else Arrays.fill(labelScores[mod][p], Float.NEGATIVE_INFINITY);
@@ -165,35 +165,35 @@ class LocalFeatureData {
 		}
 
         treeDP(0, arcLis, lab0);
-		deplbids[0] = dependencyInstance.getDeplbids()[0];
+		deplbids[0] = dependencyInstance.getDependencyLabelIds()[0];
 		getType(0, arcLis, deplbids, lab0);
 
 	}
 
-	void predictLabels(int[] heads, int[] deplbids, boolean addLoss)
+	void predictLabels(int[] heads, int[] dependencyLabelIds, boolean addLoss)
 	{
 		DependencyArcList arcLis = new DependencyArcList(heads);
-		predictLabelsDP(heads, deplbids, addLoss, arcLis);
+		predictLabelsDP(heads, dependencyLabelIds, addLoss, arcLis);
 
 	}
 	
 	FeatureVector getLabeledFeatureDifference(DependencyInstance gold,
-			int[] predDeps, int[] predLabs)
+			int[] predictedHeads, int[] predictedLabels)
 	{
 		FeatureVector dlfv = new FeatureVector();
 
-    	int[] actDeps = gold.getHeads();
-    	int[] actLabs = gold.getDeplbids();
+    	int[] actualHeads = gold.getHeads();
+    	int[] actualLabels = gold.getDependencyLabelIds();
     	
     	for (int mod = 1; mod < dependencyInstance.getLength(); ++mod) {
-    		int head = actDeps[mod];
-    		if (actLabs[mod] != predLabs[mod]) {
-    			dlfv.addEntries(getLabelFeature(actDeps, actLabs, mod, 1));
-        		dlfv.addEntries(getLabelFeature(predDeps, predLabs, mod, 1), -1.0f);
+    		int head = actualHeads[mod];
+    		if (actualLabels[mod] != predictedLabels[mod]) {
+    			dlfv.addEntries(getLabelFeature(actualHeads, actualLabels, mod, 1));
+        		dlfv.addEntries(getLabelFeature(predictedHeads, predictedLabels, mod, 1), -1.0f);
     		}
-    		if (actLabs[mod] != predLabs[mod] || actLabs[head] != predLabs[head]) {
-    			dlfv.addEntries(getLabelFeature(actDeps, actLabs, mod, 2));
-    			dlfv.addEntries(getLabelFeature(predDeps, predLabs, mod, 2), -1.0f);
+    		if (actualLabels[mod] != predictedLabels[mod] || actualLabels[head] != predictedLabels[head]) {
+    			dlfv.addEntries(getLabelFeature(actualHeads, actualLabels, mod, 2));
+    			dlfv.addEntries(getLabelFeature(predictedHeads, predictedLabels, mod, 2), -1.0f);
     		}
     	}
 		

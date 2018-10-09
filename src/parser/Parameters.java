@@ -357,21 +357,21 @@ public class Parameters implements Serializable {
     	}
 	}
 	
-	public float updateLabel(DependencyInstance gold, int[] predDeps, int[] predLabs,
-			LocalFeatureData lfd, int updCnt)
+	public float updateLabel(DependencyInstance gold, int[] predictedHeads, int[] predictedLabels,
+			LocalFeatureData localFeatureData, int updCnt)
 	{
     	int[] actDeps = gold.getHeads();
-    	int[] actLabs = gold.getDeplbids();
+    	int[] actLabs = gold.getDependencyLabelIds();
     	
-    	float Fi = getLabelDis(actLabs, predLabs);
+    	float labelDistance = getLabelDistance(actLabs, predictedLabels);
         	
-    	FeatureVector dtl = lfd.getLabeledFeatureDifference(gold, predDeps, predLabs);
-    	float loss = - dtl.dotProduct(paramsL)* gammaLabel + Fi;
-        float l2norm = dtl.squaredL2NormUnsafe() * gammaLabel * gammaLabel;
+    	FeatureVector labeledFeatureDifference = localFeatureData.getLabeledFeatureDifference(gold, predictedHeads, predictedLabels);
+    	float loss = - labeledFeatureDifference.dotProduct(paramsL)* gammaLabel + labelDistance;
+        float l2norm = labeledFeatureDifference.squaredL2NormUnsafe() * gammaLabel * gammaLabel;
     	
         // update U
     	for (int k = 0; k < rank; ++k) {        		
-    		FeatureVector dUk = getdUL(k, lfd, actDeps, actLabs, predDeps, predLabs);
+    		FeatureVector dUk = getdUL(k, localFeatureData, actDeps, actLabs, predictedHeads, predictedLabels);
         	l2norm += dUk.squaredL2NormUnsafe() * (1- gammaLabel) * (1- gammaLabel);
         	for (int u = 0, n = dUk.size(); u < n; ++u)
         		loss -= U[dUk.x(u)][k] * dUk.value(u) * (1- gammaLabel);
@@ -379,13 +379,13 @@ public class Parameters implements Serializable {
     	}
     	// update V
     	for (int k = 0; k < rank; ++k) {
-    		FeatureVector dVk = getdVL(k, lfd, actDeps, actLabs, predDeps, predLabs);
+    		FeatureVector dVk = getdVL(k, localFeatureData, actDeps, actLabs, predictedHeads, predictedLabels);
         	l2norm += dVk.squaredL2NormUnsafe() * (1- gammaLabel) * (1- gammaLabel);
         	dV[k] = dVk;
     	}        	
         // update WL
     	for (int k = 0; k < rank; ++k) {
-    		FeatureVector dWLk = getdWL(k, lfd, actDeps, actLabs, predDeps, predLabs);
+    		FeatureVector dWLk = getdWL(k, localFeatureData, actDeps, actLabs, predictedHeads, predictedLabels);
         	l2norm += dWLk.squaredL2NormUnsafe() * (1- gammaLabel) * (1- gammaLabel);
         	dWL[k] = dWLk;
     	}
@@ -393,7 +393,7 @@ public class Parameters implements Serializable {
     	if (useGP) {
 	    	// update U2
 	    	for (int k = 0; k < rank2; ++k) {
-	    		FeatureVector dU2k = getdU2L(k, lfd, actDeps, actLabs, predLabs);
+	    		FeatureVector dU2k = getdU2L(k, localFeatureData, actDeps, actLabs, predictedLabels);
 	        	l2norm += dU2k.squaredL2NormUnsafe() * (1- gammaLabel) * (1- gammaLabel);
 	        	for (int u = 0, n = dU2k.size(); u < n; ++u)
 	        		loss -= U2[dU2k.x(u)][k] * dU2k.value(u) * (1- gammaLabel);
@@ -401,25 +401,25 @@ public class Parameters implements Serializable {
 	    	}
 	    	// update V2
 	    	for (int k = 0; k < rank2; ++k) {
-	    		FeatureVector dV2k = getdV2L(k, lfd, actDeps, actLabs, predLabs);
+	    		FeatureVector dV2k = getdV2L(k, localFeatureData, actDeps, actLabs, predictedLabels);
 	        	l2norm += dV2k.squaredL2NormUnsafe() * (1- gammaLabel) * (1- gammaLabel);
 	        	dV2[k] = dV2k;
 	    	} 
 	    	// update W2
 	    	for (int k = 0; k < rank2; ++k) {
-	    		FeatureVector dW2k = getdW2L(k, lfd, actDeps, actLabs, predLabs);
+	    		FeatureVector dW2k = getdW2L(k, localFeatureData, actDeps, actLabs, predictedLabels);
 	        	l2norm += dW2k.squaredL2NormUnsafe() * (1- gammaLabel) * (1- gammaLabel);
 	        	dW2[k] = dW2k;
 	    	}
 	    	// update X2L
 	    	for (int k = 0; k < rank2; ++k) {
-	    		FeatureVector dX2Lk = getdX2L(k, lfd, actDeps, actLabs, predLabs);
+	    		FeatureVector dX2Lk = getdX2L(k, localFeatureData, actDeps, actLabs, predictedLabels);
 	        	l2norm += dX2Lk.squaredL2NormUnsafe() * (1- gammaLabel) * (1- gammaLabel);
 	        	dX2L[k] = dX2Lk;
 	    	}
 	    	// update Y2L
 	    	for (int k = 0; k < rank2; ++k) {
-	    		FeatureVector dY2Lk = getdY2L(k, lfd, actDeps, actLabs, predLabs);
+	    		FeatureVector dY2Lk = getdY2L(k, localFeatureData, actDeps, actLabs, predictedLabels);
 	        	l2norm += dY2Lk.squaredL2NormUnsafe() * (1- gammaLabel) * (1- gammaLabel);
 	        	dY2L[k] = dY2Lk;
 	    	}
@@ -433,7 +433,7 @@ public class Parameters implements Serializable {
     		
     		coeff = alpha * gammaLabel;
     		coeff2 = coeff * (1-updCnt);
-    		addTheta(paramsL, totalL, dtl, coeff, coeff2);
+    		addTheta(paramsL, totalL, labeledFeatureDifference, coeff, coeff2);
     		
     		coeff = alpha * (1- gammaLabel);
 			coeff2 = coeff * (1-updCnt);
@@ -451,17 +451,17 @@ public class Parameters implements Serializable {
     	return loss;
 	}
     
-    private FeatureVector getdUL(int k, LocalFeatureData lfd, int[] actDeps, int[] actLabs,
+    private FeatureVector getdUL(int k, LocalFeatureData lfd, int[] actualHeads, int[] actualLabels,
 			int[] predDeps, int[] predLabs) {
     	float[][] wpV = lfd.wpV;
     	FeatureVector[] wordFvs = lfd.wordFvs;
     	int L = wordFvs.length;
     	FeatureVector dU = new FeatureVector();
     	for (int mod = 1; mod < L; ++mod) {
-    		assert(actDeps[mod] == predDeps[mod]);
-    		int head  = actDeps[mod];
+    		assert(actualHeads[mod] == predDeps[mod]);
+    		int head  = actualHeads[mod];
     		int dir = head > mod ? 1 : 2;
-    		int lab  = actLabs[mod];
+    		int lab  = actualLabels[mod];
     		int lab2 = predLabs[mod];
     		if (lab == lab2){
     		    continue;
@@ -473,17 +473,17 @@ public class Parameters implements Serializable {
     	return dU;
     }
     
-    private FeatureVector getdVL(int k, LocalFeatureData lfd, int[] actDeps, int[] actLabs,
+    private FeatureVector getdVL(int k, LocalFeatureData localFeatureData, int[] actualHeads, int[] actualLabels,
 			int[] predDeps, int[] predLabs) {
-    	float[][] wpU = lfd.wpU;
-    	FeatureVector[] wordFvs = lfd.wordFvs;
+    	float[][] wpU = localFeatureData.wpU;
+    	FeatureVector[] wordFvs = localFeatureData.wordFvs;
     	int L = wordFvs.length;
     	FeatureVector dV = new FeatureVector();
     	for (int mod = 1; mod < L; ++mod) {
-    		assert(actDeps[mod] == predDeps[mod]);
-    		int head  = actDeps[mod];
+    		assert(actualHeads[mod] == predDeps[mod]);
+    		int head  = actualHeads[mod];
     		int dir = head > mod ? 1 : 2;
-    		int lab  = actLabs[mod];
+    		int lab  = actualLabels[mod];
     		int lab2 = predLabs[mod];
     		if (lab == lab2) continue;
     		float dotu = wpU[head][k];   //wordFvs[head].dotProduct(U[k]);
@@ -493,17 +493,17 @@ public class Parameters implements Serializable {
     	return dV;
     }
     
-    private FeatureVector getdWL(int k, LocalFeatureData lfd, int[] actDeps, int[] actLabs,
+    private FeatureVector getdWL(int k, LocalFeatureData lfd, int[] actualHeads, int[] actualLabels,
 			int[] predDeps, int[] predLabs) {
     	float[][] wpU = lfd.wpU, wpV = lfd.wpV;
     	FeatureVector[] wordFvs = lfd.wordFvs;
     	int L = wordFvs.length;
     	float[] dWL = new float[DL];
     	for (int mod = 1; mod < L; ++mod) {
-    		assert(actDeps[mod] == predDeps[mod]);
-    		int head = actDeps[mod];
+    		assert(actualHeads[mod] == predDeps[mod]);
+    		int head = actualHeads[mod];
     		int dir = head > mod ? 1 : 2;
-    		int lab  = actLabs[mod];
+    		int lab  = actualLabels[mod];
     		int lab2 = predLabs[mod];
     		if (lab == lab2) continue;
     		float dotu = wpU[head][k];   //wordFvs[head].dotProduct(U[k]);
@@ -520,22 +520,23 @@ public class Parameters implements Serializable {
     	return dWLfv;
     }
     
-    private FeatureVector getdU2L(int k, LocalFeatureData lfd, int[] actDeps, int[] actLabs, int[] predLabs) {
-    	float[][] wpV2 = lfd.wpV2;
-    	float[][] wpW2 = lfd.wpW2;
-    	FeatureVector[] wordFvs = lfd.wordFvs;
+    private FeatureVector getdU2L(int k, LocalFeatureData localFeatureData, int[] actualHeads,
+								  int[] actualLabels, int[] predLabs) {
+    	float[][] wpV2 = localFeatureData.wpV2;
+    	float[][] wpW2 = localFeatureData.wpW2;
+    	FeatureVector[] wordFvs = localFeatureData.wordFvs;
     	int L = wordFvs.length;
     	FeatureVector dU2 = new FeatureVector();
     	for (int mod = 1; mod < L; ++mod) {
-    		int head  = actDeps[mod];
-    		int gp = actDeps[head];
+    		int head  = actualHeads[mod];
+    		int gp = actualHeads[head];
     		if (gp == -1)
     			continue;
     		int dir = head > mod ? 1 : 2;
     		int pdir = gp > head ? 1 : 2;
-    		int lab  = actLabs[mod];
+    		int lab  = actualLabels[mod];
     		int lab2 = predLabs[mod];
-    		int plab = actLabs[head];
+    		int plab = actualLabels[head];
     		int plab2 = predLabs[head];
     		if (lab == lab2 && plab == plab2) continue;
     		float dotv2 = wpV2[head][k];
@@ -546,23 +547,24 @@ public class Parameters implements Serializable {
     	return dU2;
     }
     
-    private FeatureVector getdV2L(int k, LocalFeatureData lfd, int[] actDeps, int[] actLabs, int[] predLabs) {
-    	float[][] wpU2 = lfd.wpU2;
-    	float[][] wpW2 = lfd.wpW2;
-    	FeatureVector[] wordFvs = lfd.wordFvs;
+    private FeatureVector getdV2L(int k, LocalFeatureData localFeatureData, int[] actualHeads,
+								  int[] actualLabels, int[] predictedLabels) {
+    	float[][] wpU2 = localFeatureData.wpU2;
+    	float[][] wpW2 = localFeatureData.wpW2;
+    	FeatureVector[] wordFvs = localFeatureData.wordFvs;
     	int L = wordFvs.length;
     	FeatureVector dV2 = new FeatureVector();
     	for (int mod = 1; mod < L; ++mod) {
-    		int head  = actDeps[mod];
-    		int gp = actDeps[head];
+    		int head  = actualHeads[mod];
+    		int gp = actualHeads[head];
     		if (gp == -1)
     			continue;
     		int dir = head > mod ? 1 : 2;
     		int pdir = gp > head ? 1 : 2;
-    		int lab  = actLabs[mod];
-    		int lab2 = predLabs[mod];
-    		int plab = actLabs[head];
-    		int plab2 = predLabs[head];
+    		int lab  = actualLabels[mod];
+    		int lab2 = predictedLabels[mod];
+    		int plab = actualLabels[head];
+    		int plab2 = predictedLabels[head];
     		if (lab == lab2 && plab == plab2) continue;
     		float dotu2 = wpU2[gp][k];
     		float dotw2 = wpW2[mod][k];
@@ -572,23 +574,24 @@ public class Parameters implements Serializable {
     	return dV2;
     }
     
-    private FeatureVector getdW2L(int k, LocalFeatureData lfd, int[] actDeps, int[] actLabs, int[] predLabs) {
-    	float[][] wpU2 = lfd.wpU2;
-    	float[][] wpV2 = lfd.wpV2;
-    	FeatureVector[] wordFvs = lfd.wordFvs;
+    private FeatureVector getdW2L(int k, LocalFeatureData localFeatureData, int[] actualHeads,
+								  int[] actualLabels, int[] predictedLabels) {
+    	float[][] wpU2 = localFeatureData.wpU2;
+    	float[][] wpV2 = localFeatureData.wpV2;
+    	FeatureVector[] wordFvs = localFeatureData.wordFvs;
     	int L = wordFvs.length;
     	FeatureVector dW2 = new FeatureVector();
     	for (int mod = 1; mod < L; ++mod) {
-    		int head  = actDeps[mod];
-    		int gp = actDeps[head];
+    		int head  = actualHeads[mod];
+    		int gp = actualHeads[head];
     		if (gp == -1)
     			continue;
     		int dir = head > mod ? 1 : 2;
     		int pdir = gp > head ? 1 : 2;
-    		int lab  = actLabs[mod];
-    		int lab2 = predLabs[mod];
-    		int plab = actLabs[head];
-    		int plab2 = predLabs[head];
+    		int lab  = actualLabels[mod];
+    		int lab2 = predictedLabels[mod];
+    		int plab = actualLabels[head];
+    		int plab2 = predictedLabels[head];
     		if (lab == lab2 && plab == plab2) continue;
     		float dotu2 = wpU2[gp][k];
     		float dotv2 = wpV2[head][k];
@@ -598,22 +601,23 @@ public class Parameters implements Serializable {
     	return dW2;
     }
     
-    private FeatureVector getdX2L(int k, LocalFeatureData lfd, int[] actDeps, int[] actLabs, int[] predLabs) {
-    	float[][] wpU2 = lfd.wpU2, wpV2 = lfd.wpV2, wpW2 = lfd.wpW2;
-    	FeatureVector[] wordFvs = lfd.wordFvs;
+    private FeatureVector getdX2L(int k, LocalFeatureData localFeatureData, int[] acutalHeads,
+                                  int[] actualLabels, int[] predictedLabels) {
+    	float[][] wpU2 = localFeatureData.wpU2, wpV2 = localFeatureData.wpV2, wpW2 = localFeatureData.wpW2;
+    	FeatureVector[] wordFvs = localFeatureData.wordFvs;
     	int L = wordFvs.length;
     	float[] dX2L = new float[DL];
     	for (int mod = 1; mod < L; ++mod) {
-    		int head  = actDeps[mod];
-    		int gp = actDeps[head];
+    		int head  = acutalHeads[mod];
+    		int gp = acutalHeads[head];
     		if (gp == -1)
     			continue;
     		int dir = head > mod ? 1 : 2;
     		int pdir = gp > head ? 1 : 2;
-    		int lab  = actLabs[mod];
-    		int lab2 = predLabs[mod];
-    		int plab = actLabs[head];
-    		int plab2 = predLabs[head];
+    		int lab  = actualLabels[mod];
+    		int lab2 = predictedLabels[mod];
+    		int plab = actualLabels[head];
+    		int plab2 = predictedLabels[head];
     		if (lab == lab2 && plab == plab2) continue;
     		float dotu2 = wpU2[gp][k];
     		float dotv2 = wpV2[head][k];
@@ -632,22 +636,23 @@ public class Parameters implements Serializable {
     	return dX2Lfv;
     }
     
-    private FeatureVector getdY2L(int k, LocalFeatureData lfd, int[] actDeps, int[] actLabs, int[] predLabs) {
-    	float[][] wpU2 = lfd.wpU2, wpV2 = lfd.wpV2, wpW2 = lfd.wpW2;
-    	FeatureVector[] wordFvs = lfd.wordFvs;
+    private FeatureVector getdY2L(int k, LocalFeatureData localFeatureData, int[] actualHeads,
+                                  int[] actualLabels, int[] predictedLabels) {
+    	float[][] wpU2 = localFeatureData.wpU2, wpV2 = localFeatureData.wpV2, wpW2 = localFeatureData.wpW2;
+    	FeatureVector[] wordFvs = localFeatureData.wordFvs;
     	int L = wordFvs.length;
     	float[] dY2L = new float[DL];
     	for (int mod = 1; mod < L; ++mod) {
-    		int head  = actDeps[mod];
-    		int gp = actDeps[head];
+    		int head  = actualHeads[mod];
+    		int gp = actualHeads[head];
     		if (gp == -1)
     			continue;
     		int dir = head > mod ? 1 : 2;
     		int pdir = gp > head ? 1 : 2;
-    		int lab  = actLabs[mod];
-    		int lab2 = predLabs[mod];
-    		int plab = actLabs[head];
-    		int plab2 = predLabs[head];
+    		int lab  = actualLabels[mod];
+    		int lab2 = predictedLabels[mod];
+    		int plab = actualLabels[head];
+    		int plab2 = predictedLabels[head];
     		if (lab == lab2 && plab == plab2) continue;
     		float dotu2 = wpU2[gp][k];
     		float dotv2 = wpV2[head][k];
@@ -666,12 +671,12 @@ public class Parameters implements Serializable {
     	return dY2Lfv;
     }
 	
-	private float getLabelDis(int[] actLabs, int[] predLabs)
+	private float getLabelDistance(int[] actualLabels, int[] predictedLabels)
 	{
-		float dis = 0;
-		for (int i = 1; i < actLabs.length; ++i) {
-			if (actLabs[i] != predLabs[i]) dis += 1;
+		float distance = 0;
+		for (int i = 1; i < actualLabels.length; ++i) {
+			if (actualLabels[i] != predictedLabels[i]) distance += 1;
 		}
-		return dis;
+		return distance;
     }
 }

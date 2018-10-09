@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 import utils.DictionarySet;
 
 public class DependencyInstance implements Serializable {
-	
+
 	public enum SpecialPos {
 		C, P, PNX, V, N, OTHER,
 	}
@@ -107,10 +107,10 @@ public class DependencyInstance implements Serializable {
         return wordVecIds;
     }
 
-    private int[] deplbids;
+    private int[] dependencyLabelIds;
 
-    public int[] getDeplbids() {
-        return deplbids;
+    public int[] getDependencyLabelIds() {
+        return dependencyLabelIds;
     }
 
     private static Pattern puncRegex = Pattern.compile("[\\p{Punct}]+", Pattern.UNICODE_CHARACTER_CLASS);
@@ -155,7 +155,7 @@ public class DependencyInstance implements Serializable {
         this.postagids = dependencyInstance.postagids;
         this.cpostagids = dependencyInstance.cpostagids;
         this.deprelids = dependencyInstance.deprelids;
-        this.deplbids = dependencyInstance.deplbids;
+        this.dependencyLabelIds = dependencyInstance.dependencyLabelIds;
         this.featids = dependencyInstance.featids;
         this.wordVecIds = dependencyInstance.wordVecIds;
     }
@@ -164,7 +164,7 @@ public class DependencyInstance implements Serializable {
     		HashMap<String, String> coarseMap, HashSet<String> conjWord) {
     	    	
     	formids = new int[length];    	
-		deplbids = new int[length];
+		dependencyLabelIds = new int[length];
 		postagids = new int[length];
 		cpostagids = new int[length];
 		
@@ -172,7 +172,7 @@ public class DependencyInstance implements Serializable {
     		formids[i] = dicts.lookupIndex(WORD, "form="+normalize(forms[i]));
 			postagids[i] = dicts.lookupIndex(POS, "pos="+postags[i]);
 			cpostagids[i] = dicts.lookupIndex(POS, "cpos="+cpostags[i]);
-			deplbids[i] = dicts.lookupIndex(DEPLABEL, deprels[i]) - 1;	// zero-based
+			dependencyLabelIds[i] = dicts.lookupIndex(DEPLABEL, deprels[i]) - 1;	// zero-based
     	}
     	
     	if (lemmas != null) {

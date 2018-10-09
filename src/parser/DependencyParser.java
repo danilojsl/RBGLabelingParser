@@ -150,8 +150,7 @@ class DependencyParser implements Serializable {
 
     		long start;
     		double loss = 0;
-    		int totalNumberCorrectMatches
-					= 0;
+    		int totalNUmberCorrectMatches = 0;
             int tot = 0;
     		start = System.currentTimeMillis();	
     		
@@ -165,25 +164,26 @@ class DependencyParser implements Serializable {
     			DependencyInstance dependencyInstance = dependencyInstances[i];
     			LocalFeatureData localFeatureData = new LocalFeatureData(dependencyInstance, this);
     		    int dependencyInstanceLength = dependencyInstance.getLength();
-    		    int[] predDeps = dependencyInstance.getHeads();
-    		    int[] predLabs = new int [dependencyInstanceLength];
+    		    int[] predictedHeads = dependencyInstance.getHeads();
+    		    int[] predictedLabels = new int [dependencyInstanceLength];
     		        		
-        		localFeatureData.predictLabels(predDeps, predLabs, true);
-        		int numberCorrectMatches = getNumberCorrectMatches(dependencyInstance.getHeads(), dependencyInstance.getDeplbids(),
-											  predDeps, predLabs);
+        		localFeatureData.predictLabels(predictedHeads, predictedLabels, true);
+        		int numberCorrectMatches = getNumberCorrectMatches(dependencyInstance.getHeads(),
+                                                                    dependencyInstance.getDependencyLabelIds(),
+											                        predictedHeads, predictedLabels);
     			if (numberCorrectMatches != dependencyInstanceLength-1) {
-    				loss += parameters.updateLabel(dependencyInstance, predDeps, predLabs, localFeatureData,
-    						iIter * dependencyInstances.length + i + 1);
+    				loss += parameters.updateLabel(dependencyInstance, predictedHeads, predictedLabels,
+                                                    localFeatureData, iIter * dependencyInstances.length + i + 1);
     			}
-        		totalNumberCorrectMatches += numberCorrectMatches;
+        		totalNUmberCorrectMatches += numberCorrectMatches;
         		tot += dependencyInstanceLength-1;
     		}
 
     		tot = tot == 0 ? 1 : tot;
 
-    		System.out.printf("%n  Iter %d\tloss=%.4f\ttotalNumberCorrectMatches" +
+    		System.out.printf("%n  Iter %d\tloss=%.4f\ttotalNUmberCorrectMatches" +
 							"=%.4f\t[%ds]%n", iIter+1,
-    				loss, totalNumberCorrectMatches
+    				loss, totalNUmberCorrectMatches
 							/(tot +0.0),
     				(System.currentTimeMillis() - start)/1000);
     		System.out.println();
@@ -193,11 +193,11 @@ class DependencyParser implements Serializable {
 
     }
     
-    private int getNumberCorrectMatches(int[] actDeps, int[] actLabs, int[] predDeps, int[] predLabs)
+    private int getNumberCorrectMatches(int[] actualHeads, int[] actualLabels, int[] predictedHeads, int[] predictedLabels)
     {
     	int nCorrect = 0;
-    	for (int i = 1, N = actDeps.length; i < N; ++i) {
-    		if (actDeps[i] == predDeps[i] && actLabs[i] == predLabs[i])
+    	for (int i = 1, N = actualHeads.length; i < N; ++i) {
+    		if (actualHeads[i] == predictedHeads[i] && actualLabels[i] == predictedLabels[i])
     			++nCorrect;
     	}    		  		
     	return nCorrect;

@@ -152,7 +152,7 @@ public class SyntacticFeatureFactory implements Serializable {
 
         for (int m = 1; m < n; ++m) {
             createLabelFeatures(lazyCollector, dependencyInstance, dependencyInstance.getHeads(),
-                                dependencyInstance.getDeplbids(), m, 0);
+                                dependencyInstance.getDependencyLabelIds(), m, 0);
         }
     }
 

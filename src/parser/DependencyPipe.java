@@ -370,7 +370,7 @@ public class DependencyPipe implements Serializable {
 			int n = dependencyInstance.getLength();
 			for (int mod = 1; mod < n; ++mod) {
 				int head = dependencyInstance.getHeads()[mod];
-				int lab = dependencyInstance.getDeplbids()[mod];
+				int lab = dependencyInstance.getDependencyLabelIds()[mod];
 				if (!this.pruneLabel[dependencyInstance.getCpostagids()[head]][dependencyInstance.getCpostagids()[mod]][lab]) {
 					this.pruneLabel[dependencyInstance.getCpostagids()[head]][dependencyInstance.getCpostagids()[mod]][lab] = true;
 					num++;

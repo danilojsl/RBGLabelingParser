@@ -70,16 +70,16 @@ class DependencyParser implements Serializable {
     	long start;
         long end;
 
-    	if ((options.R > 0 || options.R2 > 0) && options.gammaLabel < 1 && options.initTensorWithPretrain) {
+    	if ((options.rank > 0 || options.rank2 > 0) && options.gammaLabel < 1 && options.initTensorWithPretrain) {
 
         	Options optionsBackup = Options.newInstance(options);
-        	options.R = 0;
-        	options.R2 = 0;
+        	options.rank = 0;
+        	options.rank2 = 0;
         	options.gammaLabel = 1.0f;
 			optionsBackup.maxNumIters = options.numPretrainIters;
-        	parameters.setRank(0);
-        	parameters.setRank2(0);
-        	parameters.setGammaL(1.0f);
+        	parameters.setRank(options.rank);
+        	parameters.setRank2(options.rank2);
+        	parameters.setGammaLabel(options.gammaLabel);
 
     		System.out.printf("Pre-training:%n");
 
@@ -90,15 +90,15 @@ class DependencyParser implements Serializable {
     		System.out.println();
     		
     		options = optionsBackup;
-    		parameters.setRank(options.R);
-        	parameters.setRank2(options.R2);
-        	parameters.setGammaL(options.gammaLabel);
+    		parameters.setRank(options.rank);
+        	parameters.setRank2(options.rank2);
+        	parameters.setGammaLabel(options.gammaLabel);
     		
     		System.out.println("Init tensor ... ");
     		int n = parameters.getNumberWordFeatures();
     		int d = parameters.getDL();
-        	LowRankTensor tensor = new LowRankTensor(new int[] {n, n, d}, options.R);
-        	LowRankTensor tensor2 = new LowRankTensor(new int[] {n, n, n, d, d}, options.R2);
+        	LowRankTensor tensor = new LowRankTensor(new int[] {n, n, d}, options.rank);
+        	LowRankTensor tensor2 = new LowRankTensor(new int[] {n, n, n, d, d}, options.rank2);
         	pipe.getSynFactory().fillParameters(tensor, tensor2, parameters);
         	
         	ArrayList<float[][]> param = new ArrayList<>();

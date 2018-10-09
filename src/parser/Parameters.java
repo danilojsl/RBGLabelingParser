@@ -13,10 +13,10 @@ public class Parameters implements Serializable {
 	
 	private boolean useGP;
 	private float C;
-	private float gammaL;
+	private float gammaLabel;
 
-    public void setGammaL(float gammaL) {
-        this.gammaL = gammaL;
+    public void setGammaLabel(float gammaLabel) {
+        this.gammaLabel = gammaLabel;
     }
 
     public void setRank(int rank) {
@@ -123,9 +123,9 @@ public class Parameters implements Serializable {
 		DL = T * 3;
         useGP = options.isUseGP();
 		C = options.C;
-		gammaL = options.gammaLabel;
-		rank = options.R;
-		rank2 = options.R2;
+		gammaLabel = options.gammaLabel;
+		rank = options.rank;
+		rank2 = options.rank2;
 
 		int sizeL = pipe.getSynFactory().getNumLabeledArcFeats() + 1;
 		paramsL = new float[sizeL];
@@ -366,27 +366,27 @@ public class Parameters implements Serializable {
     	float Fi = getLabelDis(actLabs, predLabs);
         	
     	FeatureVector dtl = lfd.getLabeledFeatureDifference(gold, predDeps, predLabs);
-    	float loss = - dtl.dotProduct(paramsL)*gammaL + Fi;
-        float l2norm = dtl.squaredL2NormUnsafe() * gammaL * gammaL;
+    	float loss = - dtl.dotProduct(paramsL)* gammaLabel + Fi;
+        float l2norm = dtl.squaredL2NormUnsafe() * gammaLabel * gammaLabel;
     	
         // update U
     	for (int k = 0; k < rank; ++k) {        		
     		FeatureVector dUk = getdUL(k, lfd, actDeps, actLabs, predDeps, predLabs);
-        	l2norm += dUk.squaredL2NormUnsafe() * (1-gammaL) * (1-gammaL);
+        	l2norm += dUk.squaredL2NormUnsafe() * (1- gammaLabel) * (1- gammaLabel);
         	for (int u = 0, n = dUk.size(); u < n; ++u)
-        		loss -= U[dUk.x(u)][k] * dUk.value(u) * (1-gammaL);
+        		loss -= U[dUk.x(u)][k] * dUk.value(u) * (1- gammaLabel);
         	dU[k] = dUk;
     	}
     	// update V
     	for (int k = 0; k < rank; ++k) {
     		FeatureVector dVk = getdVL(k, lfd, actDeps, actLabs, predDeps, predLabs);
-        	l2norm += dVk.squaredL2NormUnsafe() * (1-gammaL) * (1-gammaL);
+        	l2norm += dVk.squaredL2NormUnsafe() * (1- gammaLabel) * (1- gammaLabel);
         	dV[k] = dVk;
     	}        	
         // update WL
     	for (int k = 0; k < rank; ++k) {
     		FeatureVector dWLk = getdWL(k, lfd, actDeps, actLabs, predDeps, predLabs);
-        	l2norm += dWLk.squaredL2NormUnsafe() * (1-gammaL) * (1-gammaL);
+        	l2norm += dWLk.squaredL2NormUnsafe() * (1- gammaLabel) * (1- gammaLabel);
         	dWL[k] = dWLk;
     	}
     	
@@ -394,33 +394,33 @@ public class Parameters implements Serializable {
 	    	// update U2
 	    	for (int k = 0; k < rank2; ++k) {
 	    		FeatureVector dU2k = getdU2L(k, lfd, actDeps, actLabs, predLabs);
-	        	l2norm += dU2k.squaredL2NormUnsafe() * (1-gammaL) * (1-gammaL);
+	        	l2norm += dU2k.squaredL2NormUnsafe() * (1- gammaLabel) * (1- gammaLabel);
 	        	for (int u = 0, n = dU2k.size(); u < n; ++u)
-	        		loss -= U2[dU2k.x(u)][k] * dU2k.value(u) * (1-gammaL);
+	        		loss -= U2[dU2k.x(u)][k] * dU2k.value(u) * (1- gammaLabel);
 	        	dU2[k] = dU2k;
 	    	}
 	    	// update V2
 	    	for (int k = 0; k < rank2; ++k) {
 	    		FeatureVector dV2k = getdV2L(k, lfd, actDeps, actLabs, predLabs);
-	        	l2norm += dV2k.squaredL2NormUnsafe() * (1-gammaL) * (1-gammaL);
+	        	l2norm += dV2k.squaredL2NormUnsafe() * (1- gammaLabel) * (1- gammaLabel);
 	        	dV2[k] = dV2k;
 	    	} 
 	    	// update W2
 	    	for (int k = 0; k < rank2; ++k) {
 	    		FeatureVector dW2k = getdW2L(k, lfd, actDeps, actLabs, predLabs);
-	        	l2norm += dW2k.squaredL2NormUnsafe() * (1-gammaL) * (1-gammaL);
+	        	l2norm += dW2k.squaredL2NormUnsafe() * (1- gammaLabel) * (1- gammaLabel);
 	        	dW2[k] = dW2k;
 	    	}
 	    	// update X2L
 	    	for (int k = 0; k < rank2; ++k) {
 	    		FeatureVector dX2Lk = getdX2L(k, lfd, actDeps, actLabs, predLabs);
-	        	l2norm += dX2Lk.squaredL2NormUnsafe() * (1-gammaL) * (1-gammaL);
+	        	l2norm += dX2Lk.squaredL2NormUnsafe() * (1- gammaLabel) * (1- gammaLabel);
 	        	dX2L[k] = dX2Lk;
 	    	}
 	    	// update Y2L
 	    	for (int k = 0; k < rank2; ++k) {
 	    		FeatureVector dY2Lk = getdY2L(k, lfd, actDeps, actLabs, predLabs);
-	        	l2norm += dY2Lk.squaredL2NormUnsafe() * (1-gammaL) * (1-gammaL);
+	        	l2norm += dY2Lk.squaredL2NormUnsafe() * (1- gammaLabel) * (1- gammaLabel);
 	        	dY2L[k] = dY2Lk;
 	    	}
     	}
@@ -431,11 +431,11 @@ public class Parameters implements Serializable {
     		float coeff;
             float coeff2;
     		
-    		coeff = alpha * gammaL;
+    		coeff = alpha * gammaLabel;
     		coeff2 = coeff * (1-updCnt);
     		addTheta(paramsL, totalL, dtl, coeff, coeff2);
     		
-    		coeff = alpha * (1-gammaL);
+    		coeff = alpha * (1- gammaLabel);
 			coeff2 = coeff * (1-updCnt);
 			addTensor(U, totalU, dU, coeff, coeff2);
 			addTensor(V, totalV, dV, coeff, coeff2);

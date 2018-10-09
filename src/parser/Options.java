@@ -25,8 +25,8 @@ public class Options implements Serializable {
 	boolean initTensorWithPretrain = true;
 	float C = 0.01f;
 	float gammaLabel = 0;
-	int R = 50;
-	int R2 = 30;
+	int rank = 50;
+	int rank2 = 30;
 	
 	// feature set
 	private int bits = 30;
@@ -59,8 +59,8 @@ public class Options implements Serializable {
 		this.initTensorWithPretrain = options.initTensorWithPretrain;
 		this.C = options.C;
 		this.gammaLabel = options.gammaLabel;
-		this.R = options.R;
-		this.R2 = options.R2;
+		this.rank = options.rank;
+		this.rank2 = options.rank2;
 
 		this.bits = options.bits;
 		this.useGP = options.useGP;
@@ -81,8 +81,8 @@ public class Options implements Serializable {
         System.out.println("max-sent: " + maxNumSent);   
         System.out.println("gammaLabel: " + gammaLabel);
         System.out.println("C: " + C);
-        System.out.println("R: " + R);
-        System.out.println("R2: " + R2);
+        System.out.println("rank: " + rank);
+        System.out.println("rank2: " + rank2);
         System.out.println("word-vector:" + wordVectorFile);
         System.out.println("file format: " + format);
         System.out.println("feature hash bits: " + bits);

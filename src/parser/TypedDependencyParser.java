@@ -27,12 +27,11 @@ public class TypedDependencyParser {
 
         pipe.createAlphabets(options.trainFile);
 
-        DependencyInstance[] lstTrain = pipe.createInstances(options.trainFile);
-        pipe.pruneLabel(lstTrain);
+        DependencyInstance[] dependencyInstances = pipe.createInstances(options.trainFile);
+        pipe.pruneLabel(dependencyInstances);
 
         dependencyParser.setParameters(new Parameters(pipe, options));
-
-        dependencyParser.train(lstTrain);
+        dependencyParser.train(dependencyInstances);
         dependencyParser.saveModel();
     }
 

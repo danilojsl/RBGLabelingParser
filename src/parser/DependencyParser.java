@@ -61,8 +61,6 @@ class DependencyParser implements Serializable {
                 new GZIPInputStream(new FileInputStream(options.modelFile)))) {
             pipe = (DependencyPipe) in.readObject();
             parameters = (Parameters) in.readObject();
-            options = (Options) in.readObject();
-            pipe.setOptions(options);
         }
         pipe.closeAlphabets();
     }

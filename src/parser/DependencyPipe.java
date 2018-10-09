@@ -359,20 +359,20 @@ public class DependencyPipe implements Serializable {
     }
     
     
-    public void pruneLabel(DependencyInstance[] lstTrain)
+    public void pruneLabel(DependencyInstance[] dependencyInstances)
     {
 		int numPOS = dictionaries.size(POS) + 1;
 		int numLab = dictionaries.size(DEPLABEL) + 1;
 		this.pruneLabel = new boolean [numPOS][numPOS][numLab];
 		int num = 0;
 
-		for (DependencyInstance inst : lstTrain) {
-			int n = inst.getLength();
+		for (DependencyInstance dependencyInstance : dependencyInstances) {
+			int n = dependencyInstance.getLength();
 			for (int mod = 1; mod < n; ++mod) {
-				int head = inst.getHeads()[mod];
-				int lab = inst.getDeplbids()[mod];
-				if (!this.pruneLabel[inst.getCpostagids()[head]][inst.getCpostagids()[mod]][lab]) {
-					this.pruneLabel[inst.getCpostagids()[head]][inst.getCpostagids()[mod]][lab] = true;
+				int head = dependencyInstance.getHeads()[mod];
+				int lab = dependencyInstance.getDeplbids()[mod];
+				if (!this.pruneLabel[dependencyInstance.getCpostagids()[head]][dependencyInstance.getCpostagids()[mod]][lab]) {
+					this.pruneLabel[dependencyInstance.getCpostagids()[head]][dependencyInstance.getCpostagids()[mod]][lab] = true;
 					num++;
 				}
 			}

@@ -86,7 +86,7 @@ class DependencyParser implements Serializable {
     		start = System.currentTimeMillis();
 
     		System.out.println("Running MIRA ... ");
-    		trainIter(dependencyInstances);
+    		trainIterations(dependencyInstances);
     		System.out.println();
     		
     		options = optionsBackup;
@@ -133,7 +133,7 @@ class DependencyParser implements Serializable {
 		start = System.currentTimeMillis();
 
 		System.out.println("Running MIRA ... ");
-		trainIter(dependencyInstances);
+		trainIterations(dependencyInstances);
 		System.out.println();
 		
 		end = System.currentTimeMillis();
@@ -142,7 +142,7 @@ class DependencyParser implements Serializable {
 		System.out.println();
     }
     
-    private void trainIter(DependencyInstance[] dependencyInstances)
+    private void trainIterations(DependencyInstance[] dependencyInstances)
     {
     	int printPeriod = 10000 < dependencyInstances.length ? dependencyInstances.length/10 : 1000;
     	
@@ -150,7 +150,8 @@ class DependencyParser implements Serializable {
 
     		long start;
     		double loss = 0;
-    		int las = 0;
+    		int totalNumberCorrectMatches
+					= 0;
             int tot = 0;
     		start = System.currentTimeMillis();	
     		
@@ -162,26 +163,28 @@ class DependencyParser implements Serializable {
     			}
 
     			DependencyInstance dependencyInstance = dependencyInstances[i];
-    			LocalFeatureData lfd = new LocalFeatureData(dependencyInstance, this);
-    		    int n = dependencyInstance.getLength();
+    			LocalFeatureData localFeatureData = new LocalFeatureData(dependencyInstance, this);
+    		    int dependencyInstanceLength = dependencyInstance.getLength();
     		    int[] predDeps = dependencyInstance.getHeads();
-    		    int[] predLabs = new int [n];
+    		    int[] predLabs = new int [dependencyInstanceLength];
     		        		
-        		lfd.predictLabels(predDeps, predLabs, true);
-        		int la = evaluateLabelCorrect(dependencyInstance.getHeads(), dependencyInstance.getDeplbids(),
+        		localFeatureData.predictLabels(predDeps, predLabs, true);
+        		int numberCorrectMatches = getNumberCorrectMatches(dependencyInstance.getHeads(), dependencyInstance.getDeplbids(),
 											  predDeps, predLabs);
-    			if (la != n-1) {
-    				loss += parameters.updateLabel(dependencyInstance, predDeps, predLabs, lfd,
+    			if (numberCorrectMatches != dependencyInstanceLength-1) {
+    				loss += parameters.updateLabel(dependencyInstance, predDeps, predLabs, localFeatureData,
     						iIter * dependencyInstances.length + i + 1);
     			}
-        		las += la;
-        		tot += n-1;
+        		totalNumberCorrectMatches += numberCorrectMatches;
+        		tot += dependencyInstanceLength-1;
     		}
 
     		tot = tot == 0 ? 1 : tot;
 
-    		System.out.printf("%n  Iter %d\tloss=%.4f\tlas=%.4f\t[%ds]%n", iIter+1,
-    				loss, las/(tot +0.0),
+    		System.out.printf("%n  Iter %d\tloss=%.4f\ttotalNumberCorrectMatches" +
+							"=%.4f\t[%ds]%n", iIter+1,
+    				loss, totalNumberCorrectMatches
+							/(tot +0.0),
     				(System.currentTimeMillis() - start)/1000);
     		System.out.println();
     		
@@ -190,7 +193,7 @@ class DependencyParser implements Serializable {
 
     }
     
-    private int evaluateLabelCorrect(int[] actDeps, int[] actLabs, int[] predDeps, int[] predLabs)
+    private int getNumberCorrectMatches(int[] actDeps, int[] actLabs, int[] predDeps, int[] predLabs)
     {
     	int nCorrect = 0;
     	for (int i = 1, N = actDeps.length; i < N; ++i) {

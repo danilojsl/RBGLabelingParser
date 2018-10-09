@@ -37,7 +37,7 @@ class LocalFeatureData {
 		this.dependencyInstance = dependencyInstance;
 		pipe = parser.getPipe();
 		synFactory = pipe.getSynFactory();
-		options = parser.options;
+		options = parser.getOptions();
 		parameters = parser.getParameters();
 		
 		len = dependencyInstance.getLength();

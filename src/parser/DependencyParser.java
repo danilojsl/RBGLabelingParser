@@ -16,9 +16,8 @@ import parser.io.DependencyWriter;
 class DependencyParser implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
-	
-	protected Options options;
+
+	private Options options;
 	private DependencyPipe pipe;
 	private Parameters parameters;
 
@@ -30,41 +29,23 @@ class DependencyParser implements Serializable {
         return parameters;
     }
 
-    public static void main(String[] args)
-		throws IOException, ClassNotFoundException, CloneNotSupportedException
-	{
-		
-		Options options = new Options();
-		
-		if (options.train) {
-			DependencyParser parser = new DependencyParser();
-			parser.options = options;
-			options.printOptions();
+    public Options getOptions() {
+        return options;
+    }
 
-			DependencyPipe pipe = new DependencyPipe(options);
-			parser.pipe = pipe;
-			
-			pipe.createAlphabets(options.trainFile);
-			
-			DependencyInstance[] lstTrain = pipe.createInstances(options.trainFile);
-			pipe.pruneLabel(lstTrain);
-
-            parser.parameters = new Parameters(pipe, options);
-			
-			parser.train(lstTrain);
-			parser.saveModel();
-		}
-		
-		if (options.test) {
-			DependencyParser parser = new DependencyParser();
-			parser.options = options;
-			parser.loadModel();
-			parser.predictDependency();
-		}
-		
+    void setPipe(DependencyPipe pipe) {
+		this.pipe = pipe;
 	}
-	
-    private void saveModel() throws IOException
+
+	void setParameters(Parameters parameters) {
+		this.parameters = parameters;
+	}
+
+    public void setOptions(Options options) {
+        this.options = options;
+    }
+
+    void saveModel() throws IOException
     {
         try (ObjectOutputStream out = new ObjectOutputStream(
                 new GZIPOutputStream(new FileOutputStream(options.modelFile)))) {
@@ -73,8 +54,8 @@ class DependencyParser implements Serializable {
             out.writeObject(options);
         }
     }
-	
-    private void loadModel() throws IOException, ClassNotFoundException
+
+    void loadModel() throws IOException, ClassNotFoundException
     {
         try (ObjectInputStream in = new ObjectInputStream(
                 new GZIPInputStream(new FileInputStream(options.modelFile)))) {
@@ -86,7 +67,7 @@ class DependencyParser implements Serializable {
         pipe.closeAlphabets();
     }
 	
-    private void train(DependencyInstance[] lstTrain)
+    void train(DependencyInstance[] lstTrain)
     	throws CloneNotSupportedException
     {
     	long start;
@@ -222,8 +203,10 @@ class DependencyParser implements Serializable {
     	return nCorrect;
     }
     
-    private void predictDependency()
+    void predictDependency()
     		throws IOException {
+
+        System.out.printf(" Predicting...%n");
 
         //Initialize parameters for prediction files
     	DependencyReader predictionReader = DependencyReader.createDependencyReader(options);
@@ -252,6 +235,10 @@ class DependencyParser implements Serializable {
     	}
 
     	predictionReader.close();
-    	if (writer != null) writer.close();
+    	if (writer != null) {
+    	    writer.close();
+        }
+
+        System.out.printf(" Done%n");
     }
 }

@@ -19,8 +19,7 @@ public class Options implements Serializable {
 		return format;
 	}
 
-	int maxNumSent = -1;
-    int numPretrainIters = 1;
+	 int numPretrainIters = 1;
 	int maxNumIters = 10;
 	boolean initTensorWithPretrain = true;
 	float C = 0.01f;
@@ -53,8 +52,7 @@ public class Options implements Serializable {
         this.modelFile = options.modelFile;
         this.format = options.format;
 
-        this.maxNumSent = options.maxNumSent;
-		this.numPretrainIters = options.numPretrainIters;
+ 		this.numPretrainIters = options.numPretrainIters;
 		this.maxNumIters = options.maxNumIters;
 		this.initTensorWithPretrain = options.initTensorWithPretrain;
 		this.C = options.C;
@@ -78,7 +76,6 @@ public class Options implements Serializable {
     	System.out.println("model-name: " + modelFile);
         System.out.println("output-file: " + outFile);
         System.out.println("iters: " + maxNumIters);
-        System.out.println("max-sent: " + maxNumSent);   
         System.out.println("gammaLabel: " + gammaLabel);
         System.out.println("C: " + C);
         System.out.println("rank: " + rank);

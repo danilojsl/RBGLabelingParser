@@ -123,13 +123,10 @@ public class DependencyPipe implements Serializable {
 		reader.startReading(file);
 		DependencyInstance dependencyInstance = reader.nextInstance(coarseMap);
 		
-		int cnt = 0;
 		while (dependencyInstance != null) {
 			dependencyInstance.setInstIds(dictionaries, coarseMap, conjWord);
 			
 			dependencyInstance = reader.nextInstance(coarseMap);
-			++cnt;
-			if (options.maxNumSent != -1 && cnt >= options.maxNumSent) break;
 		}
 		reader.close();
 		
@@ -191,7 +188,6 @@ public class DependencyPipe implements Serializable {
 		reader.startReading(file);
 		
 		DependencyInstance dependencyInstance = reader.nextInstance(coarseMap);
-		int cnt = 0;
 
 		while(dependencyInstance != null) {
 			
@@ -205,8 +201,6 @@ public class DependencyPipe implements Serializable {
 		    synFactory.initFeatureAlphabets(dependencyInstance);
 				
 		    dependencyInstance = reader.nextInstance(coarseMap);
-		    cnt++;
-	        if (options.maxNumSent != -1 && cnt >= options.maxNumSent) break;
 		}
 				
 		System.out.printf("[%d ms]%n", System.currentTimeMillis() - start);
@@ -318,8 +312,7 @@ public class DependencyPipe implements Serializable {
 
 		LinkedList<DependencyInstance> lt = new LinkedList<>();
 		DependencyInstance dependencyInstance = reader.nextInstance(coarseMap);
-						
-		int cnt = 0;
+
 		while(dependencyInstance != null) {
 			
 			dependencyInstance.setInstIds(dictionaries, coarseMap, conjWord);
@@ -327,10 +320,6 @@ public class DependencyPipe implements Serializable {
 			lt.add(new DependencyInstance(dependencyInstance));
 			
 			dependencyInstance = reader.nextInstance(coarseMap);
-			cnt++;
-			if (options.maxNumSent != -1 && cnt >= options.maxNumSent) break;
-			if (cnt % 1000 == 0)
-				System.out.printf("%d ", cnt);
 		}
 				
 		reader.close();
@@ -341,9 +330,7 @@ public class DependencyPipe implements Serializable {
 		for (DependencyInstance p : lt) {
 			insts[N++] = p;
 		}
-		
-		System.out.printf("%d [%d ms]%n", cnt, System.currentTimeMillis() - start);
-	    
+
 		return insts;
 	}
     

@@ -49,7 +49,7 @@ public class DictionarySet implements Serializable {
 		return id <= 0 ? 1 : id;
 	}
 	
-	public int dictionarySetSize(DictionaryTypes tag)
+	public int getDictionarySize(DictionaryTypes tag)
 	{
 		int indexTag = tag.ordinal();
 		return dicts[indexTag].dictionarySize();
@@ -60,7 +60,7 @@ public class DictionarySet implements Serializable {
 		dicts[tag.ordinal()].stopGrowth();
 	}
 	
-	public Dictionary get(DictionaryTypes tag)
+	public Dictionary getDictionary(DictionaryTypes tag)
 	{
 		return dicts[tag.ordinal()];
 	}

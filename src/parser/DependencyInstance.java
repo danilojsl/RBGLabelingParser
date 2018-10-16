@@ -188,7 +188,7 @@ public class DependencyInstance implements Serializable {
 				featids[i][j] = dicts.lookupIndex(POS, "feat="+feats[i][j]);
 		}
 		
-		if (dicts.dictionarySetSize(WORD_VEC) > 0) {
+		if (dicts.getDictionarySize(WORD_VEC) > 0) {
 			wordVecIds = new int[length];
 			for (int i = 0; i < length; ++i) {
 				int wvid = dicts.lookupIndex(WORD_VEC, forms[i]);

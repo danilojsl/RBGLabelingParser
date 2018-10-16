@@ -44,17 +44,6 @@ public class SyntacticFeatureFactory implements Serializable {
 
     private Options options;
 
-    private double[][] wordVectors = null;
-    private double[] unknownWv = null;
-
-    public void setWordVectors(double[][] wordVectors) {
-        this.wordVectors = wordVectors;
-    }
-
-    public void setUnknownWv(double[] unknownWv) {
-        this.unknownWv = unknownWv;
-    }
-
     private int tagNumBits;
     private int wordNumBits;
     private int depNumBits;
@@ -290,30 +279,7 @@ public class SyntacticFeatureFactory implements Serializable {
             }
         }
 
-        if (wordVectors != null) {
-            addWordVectorFeatures(dependencyInstance, i, fv);
-        }
-
         return fv;
-    }
-
-    private void addWordVectorFeatures(DependencyInstance dependencyInstance, int i, FeatureVector fv) {
-        int dis = 0;
-        int d = Utils.getBinnedDistance(dis);
-        double[] v = unknownWv;
-        int pos = i + dis;
-
-        if (pos >= 0 && pos < dependencyInstance.getLength()) {
-            int wvid = dependencyInstance.getWordVecIds()[pos];
-            if (wvid > 0) v = wordVectors[wvid];
-        }
-
-        if (v != null) {
-            for (int j = 0; j < v.length; ++j) {
-                long code = createWordCodeW(WORDFV_EMB, j);
-                addWordFeature(code | d, (float) v[j], fv);
-            }
-        }
     }
 
 
@@ -527,28 +493,6 @@ public class SyntacticFeatureFactory implements Serializable {
                 }
         }
 
-        if (wordVectors != null) {
-
-            int wvid = dependencyInstance.getWordVecIds()[h];
-            double[] v = wvid > 0 ? wordVectors[wvid] : unknownWv;
-            if (v != null) {
-                for (int i = 0; i < v.length; ++i) {
-                    code = createArcCodeW(HEAD_EMB, i) | tid;
-                    addLabeledArcFeature(code, (float) v[i], fv);
-                    addLabeledArcFeature(code | attDist, (float) v[i], fv);
-                }
-            }
-
-            wvid = dependencyInstance.getWordVecIds()[m];
-            v = wvid > 0 ? wordVectors[wvid] : unknownWv;
-            if (v != null) {
-                for (int i = 0; i < v.length; ++i) {
-                    code = createArcCodeW(MOD_EMB, i) | tid;
-                    addLabeledArcFeature(code, (float) v[i], fv);
-                    addLabeledArcFeature(code | attDist, (float) v[i], fv);
-                }
-            }
-        }
     }
 
     private void addCore1OPosFeatures(Collector fv, DependencyInstance dependencyInstance,

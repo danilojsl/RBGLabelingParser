@@ -176,9 +176,6 @@ public class DependencyPipe implements Serializable {
 	
 		createDictionaries(file);
 		
-		if (options.wordVectorFile != null)
-			loadWordVectors(options.wordVectorFile);
-		
 		long start = System.currentTimeMillis();
 		System.out.print("Creating Alphabet ... ");
 		
@@ -215,81 +212,6 @@ public class DependencyPipe implements Serializable {
 		System.out.printf("Num of Syntactic Features: %d %d%n", 
 				synFactory.getNumWordFeats(), synFactory.getNumLabeledArcFeats());
 		numCPOS = cposTagSet.size();
-	}
-	
-	/***
-	 * Load word vectors. The real-value word vectors are used as auxiliary
-	 * features for the tensor scores.
-	 * 
-	 * @param file  file path of the word vector file.
-	 */
-	private void loadWordVectors(String file) throws IOException
-	{
-		
-		System.out.println("Loading word vectors...");
-
-		try (BufferedReader in = new BufferedReader(
-				new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))){
-            String line = in.readLine();
-            while (line != null) {
-                line = line.trim();
-                String[] parts = line.split("[ \t]");
-                String word = parts[0];
-                dictionaries.lookupIndex(WORD_VEC, word);
-                line = in.readLine();
-            }
-        }
-
-		dictionaries.stopGrowth(WORD_VEC);
-
-		try (BufferedReader in = new BufferedReader(
-				new InputStreamReader(new FileInputStream(file),StandardCharsets.UTF_8))){
-            double[][] wordVectors = new double[dictionaries.getDictionarySize(WORD_VEC) + 1][];
-            int upperCases = 0;
-            int cnt = 0;
-            double sumL2 = 0;
-            double minL2 = Double.POSITIVE_INFINITY;
-            double maxL2 = 0;
-            String line = in.readLine();
-            while (line != null) {
-                line = line.trim();
-                String[] parts = line.split("[ \t]");
-
-                String word = parts[0];
-                upperCases += Character.isUpperCase(word.charAt(0)) ? 1 : 0;
-                ++cnt;
-
-                double s = 0;
-                double [] v = new double[parts.length - 1];
-                for (int i = 0; i < v.length; ++i) {
-                    v[i] = Double.parseDouble(parts[i+1]);
-                    s += v[i]*v[i];
-                }
-                s = Math.sqrt(s);
-                sumL2 += s;
-                minL2 = Math.min(minL2, s);
-                maxL2 = Math.max(maxL2, s);
-
-                String unknowWord = "*UNKNOWN*";
-                if (word.equalsIgnoreCase(unknowWord))
-                    unknownWv = v;
-                else {
-                    int wordId = dictionaries.lookupIndex(WORD_VEC, word);
-                    if (wordId > 0) wordVectors[wordId] = v;
-                }
-
-                line = in.readLine();
-            }
-
-            sumL2 /= cnt;
-
-            synFactory.setUnknownWv(unknownWv);
-            synFactory.setWordVectors(wordVectors);
-
-            System.out.printf("Vector norm: Avg: %f  Min: %f  Max: %f%n",
-                    sumL2, minL2, maxL2);
-        }
-
 	}
 	
 	/***

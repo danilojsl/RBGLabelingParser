@@ -19,13 +19,13 @@ public class Options implements Serializable {
 		return format;
 	}
 
-	 int numPretrainIters = 1;
-	int maxNumIters = 10;
+	int numberOfPreTrainingIterations = 2;
+	int numberOfTrainingIterations = 10;
 	boolean initTensorWithPretrain = true;
-	float C = 0.01f;
+	float regularization = 0.01f;
 	float gammaLabel = 0;
-	int rank = 50;
-	int rank2 = 30;
+	int rankFirstOrderTensor = 50;
+	int rankSecondOrderTensor = 30;
 	
 	// feature set
 	private int bits = 30;
@@ -52,13 +52,13 @@ public class Options implements Serializable {
         this.modelFile = options.modelFile;
         this.format = options.format;
 
- 		this.numPretrainIters = options.numPretrainIters;
-		this.maxNumIters = options.maxNumIters;
+        this.numberOfPreTrainingIterations = options.numberOfPreTrainingIterations;
+ 		this.numberOfTrainingIterations = options.numberOfTrainingIterations;
 		this.initTensorWithPretrain = options.initTensorWithPretrain;
-		this.C = options.C;
+		this.regularization = options.regularization;
 		this.gammaLabel = options.gammaLabel;
-		this.rank = options.rank;
-		this.rank2 = options.rank2;
+		this.rankFirstOrderTensor = options.rankFirstOrderTensor;
+		this.rankSecondOrderTensor = options.rankSecondOrderTensor;
 
 		this.bits = options.bits;
 		this.useGP = options.useGP;
@@ -75,15 +75,15 @@ public class Options implements Serializable {
     	System.out.println("pred-file: " + predFile);
     	System.out.println("model-name: " + modelFile);
         System.out.println("output-file: " + outFile);
-        System.out.println("iters: " + maxNumIters);
+        System.out.println("iters: " + numberOfTrainingIterations);
         System.out.println("gammaLabel: " + gammaLabel);
-        System.out.println("C: " + C);
-        System.out.println("rank: " + rank);
-        System.out.println("rank2: " + rank2);
+        System.out.println("Regularization: " + regularization);
+        System.out.println("rankFirstOrderTensor: " + rankFirstOrderTensor);
+        System.out.println("rankSecondOrderTensor: " + rankSecondOrderTensor);
         System.out.println("word-vector:" + wordVectorFile);
         System.out.println("file format: " + format);
         System.out.println("feature hash bits: " + bits);
-        
+
         System.out.println();
         System.out.println("use grandparent: " + useGP);
 

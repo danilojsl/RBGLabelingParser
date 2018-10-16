@@ -77,10 +77,10 @@ public class LowRankTensor {
 			}
 			if (iter >= MAX_ITER) {
 				System.out.printf("\tWARNING: Power method didn't converge." +
-						"rank=%d sigma=%f%n", i, norm);
+						"rankFirstOrderTensor=%d sigma=%f%n", i, norm);
 			}
 			if (Math.abs(norm) <= eps) {
-				System.out.printf("\tWARNING: Power method has nearly-zero sigma. rank=%d%n",i);
+				System.out.printf("\tWARNING: Power method has nearly-zero sigma. rankFirstOrderTensor=%d%n",i);
 			}
 			System.out.printf("\t%.2f", norm);
 			for (int k = 0; k < dim; ++k)

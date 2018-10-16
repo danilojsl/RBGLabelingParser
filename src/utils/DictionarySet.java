@@ -16,12 +16,11 @@ public class DictionarySet implements Serializable {
 	{
 		POS,
 		WORD,
-		DEPLABEL,
-		WORDVEC,
+		DEP_LABEL,
+		WORD_VEC,
 		TYPE_END
 	}
 	
-	private int tot;
 	private Dictionary[] dicts;
 	
 	private boolean isCounting;
@@ -33,8 +32,7 @@ public class DictionarySet implements Serializable {
 		isCounting = false;
 		int indexDictionaryTypes = DictionaryTypes.TYPE_END.ordinal();
 		dicts = new Dictionary[indexDictionaryTypes];
-		tot = dicts.length;
-		for (int i = 0; i < tot; ++i) {
+		for (int i = 0; i < dicts.length; ++i) {
 			dicts[i] = new Dictionary();
 		}
 	}
@@ -51,10 +49,10 @@ public class DictionarySet implements Serializable {
 		return id <= 0 ? 1 : id;
 	}
 	
-	public int size(DictionaryTypes tag)
+	public int dictionarySetSize(DictionaryTypes tag)
 	{
 		int indexTag = tag.ordinal();
-		return dicts[indexTag].size();
+		return dicts[indexTag].dictionarySize();
 	}
 	
 	public void stopGrowth(DictionaryTypes tag)
@@ -70,8 +68,8 @@ public class DictionarySet implements Serializable {
 	public void setCounters()
 	{
 		isCounting = true;
-		counters = new TIntIntHashMap[tot];
-		for (int i = 0; i < tot; ++i)
+		counters = new TIntIntHashMap[dicts.length];
+		for (int i = 0; i < dicts.length; ++i)
 			counters[i] = new TIntIntHashMap();
 	}
 	

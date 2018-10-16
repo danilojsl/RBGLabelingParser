@@ -1,9 +1,9 @@
 package parser;
 
-import static utils.DictionarySet.DictionaryTypes.DEPLABEL;
+import static utils.DictionarySet.DictionaryTypes.DEP_LABEL;
 import static utils.DictionarySet.DictionaryTypes.POS;
 import static utils.DictionarySet.DictionaryTypes.WORD;
-import static utils.DictionarySet.DictionaryTypes.WORDVEC;
+import static utils.DictionarySet.DictionaryTypes.WORD_VEC;
 
 import java.io.Serializable;
 import java.util.*;
@@ -172,7 +172,7 @@ public class DependencyInstance implements Serializable {
     		formids[i] = dicts.lookupIndex(WORD, "form="+normalize(forms[i]));
 			postagids[i] = dicts.lookupIndex(POS, "pos="+postags[i]);
 			cpostagids[i] = dicts.lookupIndex(POS, "cpos="+cpostags[i]);
-			dependencyLabelIds[i] = dicts.lookupIndex(DEPLABEL, deprels[i]) - 1;	// zero-based
+			dependencyLabelIds[i] = dicts.lookupIndex(DEP_LABEL, deprels[i]) - 1;	// zero-based
     	}
     	
     	if (lemmas != null) {
@@ -188,11 +188,11 @@ public class DependencyInstance implements Serializable {
 				featids[i][j] = dicts.lookupIndex(POS, "feat="+feats[i][j]);
 		}
 		
-		if (dicts.size(WORDVEC) > 0) {
+		if (dicts.dictionarySetSize(WORD_VEC) > 0) {
 			wordVecIds = new int[length];
 			for (int i = 0; i < length; ++i) {
-				int wvid = dicts.lookupIndex(WORDVEC, forms[i]);
-				if (wvid <= 0) wvid = dicts.lookupIndex(WORDVEC, forms[i].toLowerCase());
+				int wvid = dicts.lookupIndex(WORD_VEC, forms[i]);
+				if (wvid <= 0) wvid = dicts.lookupIndex(WORD_VEC, forms[i].toLowerCase());
 				if (wvid > 0) wordVecIds[i] = wvid; else wordVecIds[i] = -1; 
 			}
 		}

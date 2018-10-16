@@ -136,17 +136,17 @@ public class DependencyPipe implements Serializable {
 		synFactory.setTokenEnd(dictionaries.lookupIndex(POS, "#TOKEN_END#"));
 		synFactory.setTokenMid(dictionaries.lookupIndex(POS, "#TOKEN_MID#"));
 
-		dictionaries.stopGrowth(DEPLABEL);
+		dictionaries.stopGrowth(DEP_LABEL);
 		dictionaries.stopGrowth(POS);
 		dictionaries.stopGrowth(WORD);
 				
-		synFactory.setWordNumBits(Utils.log2((long) dictionaries.size(WORD) + 1));
-		synFactory.setTagNumBits(Utils.log2((long) dictionaries.size(POS) + 1));
-		synFactory.setDepNumBits(Utils.log2((long) dictionaries.size(DEPLABEL) + 1));
+		synFactory.setWordNumBits(Utils.log2((long) dictionaries.dictionarySetSize(WORD) + 1));
+		synFactory.setTagNumBits(Utils.log2((long) dictionaries.dictionarySetSize(POS) + 1));
+		synFactory.setDepNumBits(Utils.log2((long) dictionaries.dictionarySetSize(DEP_LABEL) + 1));
 		synFactory.setFlagBits(2*synFactory.getDepNumBits() + 4);
 		
-		types = new String[dictionaries.size(DEPLABEL)];	 
-		Dictionary labelDict = dictionaries.get(DEPLABEL);
+		types = new String[dictionaries.dictionarySetSize(DEP_LABEL)];
+		Dictionary labelDict = dictionaries.get(DEP_LABEL);
 		Object[] keys = labelDict.toArray();
 		for (Object key : keys) {
 			int id = labelDict.lookupIndex(key);
@@ -155,10 +155,10 @@ public class DependencyPipe implements Serializable {
 		
 		System.out.printf("%d %d%n", NUM_WORD_FEAT_BITS, NUM_ARC_FEAT_BITS);
 		System.out.printf("Lexical items: %d (%d bits)%n", 
-				dictionaries.size(WORD), synFactory.getWordNumBits());
+				dictionaries.dictionarySetSize(WORD), synFactory.getWordNumBits());
 		System.out.printf("Tag/label items: %d (%d bits)  %d (%d bits)%n", 
-				dictionaries.size(POS), synFactory.getTagNumBits(),
-				dictionaries.size(DEPLABEL), synFactory.getDepNumBits());
+				dictionaries.dictionarySetSize(POS), synFactory.getTagNumBits(),
+				dictionaries.dictionarySetSize(DEP_LABEL), synFactory.getDepNumBits());
 		System.out.printf("Flag Bits: %d%n", synFactory.getFlagBits());
 		System.out.printf("Creation took [%d ms]%n", System.currentTimeMillis() - start);
 	}
@@ -235,16 +235,16 @@ public class DependencyPipe implements Serializable {
                 line = line.trim();
                 String[] parts = line.split("[ \t]");
                 String word = parts[0];
-                dictionaries.lookupIndex(WORDVEC, word);
+                dictionaries.lookupIndex(WORD_VEC, word);
                 line = in.readLine();
             }
         }
 
-		dictionaries.stopGrowth(WORDVEC);
+		dictionaries.stopGrowth(WORD_VEC);
 
 		try (BufferedReader in = new BufferedReader(
 				new InputStreamReader(new FileInputStream(file),StandardCharsets.UTF_8))){
-            double[][] wordVectors = new double[dictionaries.size(WORDVEC) + 1][];
+            double[][] wordVectors = new double[dictionaries.dictionarySetSize(WORD_VEC) + 1][];
             int upperCases = 0;
             int cnt = 0;
             double sumL2 = 0;
@@ -274,7 +274,7 @@ public class DependencyPipe implements Serializable {
                 if (word.equalsIgnoreCase(unknowWord))
                     unknownWv = v;
                 else {
-                    int wordId = dictionaries.lookupIndex(WORDVEC, word);
+                    int wordId = dictionaries.lookupIndex(WORD_VEC, word);
                     if (wordId > 0) wordVectors[wordId] = v;
                 }
 
@@ -348,8 +348,8 @@ public class DependencyPipe implements Serializable {
     
     public void pruneLabel(DependencyInstance[] dependencyInstances)
     {
-		int numPOS = dictionaries.size(POS) + 1;
-		int numLab = dictionaries.size(DEPLABEL) + 1;
+		int numPOS = dictionaries.dictionarySetSize(POS) + 1;
+		int numLab = dictionaries.dictionarySetSize(DEP_LABEL) + 1;
 		this.pruneLabel = new boolean [numPOS][numPOS][numLab];
 		int num = 0;
 

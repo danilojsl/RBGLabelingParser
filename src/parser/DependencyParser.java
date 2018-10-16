@@ -70,15 +70,15 @@ class DependencyParser implements Serializable {
     	long start;
         long end;
 
-    	if ((options.rank > 0 || options.rank2 > 0) && options.gammaLabel < 1 && options.initTensorWithPretrain) {
+    	if ((options.rankFirstOrderTensor > 0 || options.rankSecondOrderTensor > 0) && options.gammaLabel < 1 && options.initTensorWithPretrain) {
 
         	Options optionsBackup = Options.newInstance(options);
-        	options.rank = 0;
-        	options.rank2 = 0;
+        	options.rankFirstOrderTensor = 0;
+        	options.rankSecondOrderTensor = 0;
         	options.gammaLabel = 1.0f;
-			optionsBackup.maxNumIters = options.numPretrainIters;
-        	parameters.setRank(options.rank);
-        	parameters.setRank2(options.rank2);
+			optionsBackup.numberOfTrainingIterations = options.numberOfPreTrainingIterations;
+        	parameters.setRankFirstOrderTensor(options.rankFirstOrderTensor);
+        	parameters.setRankSecondOrderTensor(options.rankSecondOrderTensor);
         	parameters.setGammaLabel(options.gammaLabel);
 
     		System.out.printf("Pre-training:%n");
@@ -90,15 +90,15 @@ class DependencyParser implements Serializable {
     		System.out.println();
     		
     		options = optionsBackup;
-    		parameters.setRank(options.rank);
-        	parameters.setRank2(options.rank2);
+    		parameters.setRankFirstOrderTensor(options.rankFirstOrderTensor);
+        	parameters.setRankSecondOrderTensor(options.rankSecondOrderTensor);
         	parameters.setGammaLabel(options.gammaLabel);
     		
     		System.out.println("Init tensor ... ");
     		int n = parameters.getNumberWordFeatures();
     		int d = parameters.getDL();
-        	LowRankTensor tensor = new LowRankTensor(new int[] {n, n, d}, options.rank);
-        	LowRankTensor tensor2 = new LowRankTensor(new int[] {n, n, n, d, d}, options.rank2);
+        	LowRankTensor tensor = new LowRankTensor(new int[] {n, n, d}, options.rankFirstOrderTensor);
+        	LowRankTensor tensor2 = new LowRankTensor(new int[] {n, n, n, d, d}, options.rankSecondOrderTensor);
         	pipe.getSynFactory().fillParameters(tensor, tensor2, parameters);
         	
         	ArrayList<float[][]> param = new ArrayList<>();
@@ -145,8 +145,10 @@ class DependencyParser implements Serializable {
     private void trainIterations(DependencyInstance[] dependencyInstances)
     {
     	int printPeriod = 10000 < dependencyInstances.length ? dependencyInstances.length/10 : 1000;
-    	
-    	for (int iIter = 0; iIter < options.maxNumIters; ++iIter) {
+
+    	System.out.println("***************************************************** Number of Training Iterations: "+options.numberOfTrainingIterations);
+
+    	for (int iIter = 0; iIter < options.numberOfTrainingIterations; ++iIter) {
 
     		long start;
     		double loss = 0;

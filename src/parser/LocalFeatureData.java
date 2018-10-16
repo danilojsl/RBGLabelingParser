@@ -42,8 +42,8 @@ class LocalFeatureData {
 		
 		len = dependencyInstance.getLength();
 		ntypes = pipe.getTypes().length;
-        int rank = options.rank;
-        int rank2 = options.rank2;
+        int rank = options.rankFirstOrderTensor;
+        int rank2 = options.rankSecondOrderTensor;
 		gammaL = options.gammaLabel;
 		
 		wordFvs = new FeatureVector[len];

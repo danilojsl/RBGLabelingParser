@@ -58,7 +58,7 @@ public class Dictionary implements Serializable
     	return map.keys();
     }
 
-    public int size ()
+    public int dictionarySize()
     {
     	return numEntries;
     }

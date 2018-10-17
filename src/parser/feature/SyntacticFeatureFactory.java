@@ -16,7 +16,6 @@ import parser.Parameters;
 import utils.Alphabet;
 import utils.Collector;
 import utils.FeatureVector;
-import utils.Utils;
 
 @SuppressWarnings("ALL")
 public class SyntacticFeatureFactory implements Serializable {
@@ -42,7 +41,7 @@ public class SyntacticFeatureFactory implements Serializable {
         this.tokenMid = tokenMid;
     }
 
-    private Options options;
+    private static final int BITS = 30;
 
     private int tagNumBits;
     private int wordNumBits;
@@ -95,16 +94,14 @@ public class SyntacticFeatureFactory implements Serializable {
     private transient TLongHashSet featureHashSet;
     private Alphabet wordAlphabet;        // the alphabet of word features (e.g. \phi_h, \phi_m)
 
-    public SyntacticFeatureFactory(Options options) {
-        this.options = options;
-
+    public SyntacticFeatureFactory() {
         wordAlphabet = new Alphabet();
 
         stoppedGrowth = false;
         featureHashSet = new TLongHashSet(100000);
 
         numWordFeats = 0;
-        numLabeledArcFeats = (int) ((1L << (options.getBits() - 2)) - 1);
+        numLabeledArcFeats = (int) ((1L << (BITS - 2)) - 1);
     }
 
     public void closeAlphabets() {
@@ -299,7 +296,7 @@ public class SyntacticFeatureFactory implements Serializable {
 
         int gp = heads[head];
         int ptype = types[head];
-        if (order != 1 && options.isUseGP() && gp != -1) {
+        if (order != 1 && gp != -1) {
             createLabeledGPCFeatureVector(fv, inst, gp, head, mod, type, ptype);
         }
     }

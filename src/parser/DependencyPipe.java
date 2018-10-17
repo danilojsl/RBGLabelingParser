@@ -1,24 +1,22 @@
 package parser;
 
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-
 import parser.feature.SyntacticFeatureFactory;
 import parser.io.DependencyReader;
 import utils.Dictionary;
 import utils.DictionarySet;
 import utils.Utils;
-import static parser.feature.FeatureTemplate.Arc.*;
-import static parser.feature.FeatureTemplate.Word.*;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+
+import static parser.feature.FeatureTemplate.Arc.NUM_ARC_FEAT_BITS;
+import static parser.feature.FeatureTemplate.Word.NUM_WORD_FEAT_BITS;
 import static utils.DictionarySet.DictionaryTypes.*;
 
 public class DependencyPipe implements Serializable {
@@ -44,8 +42,6 @@ public class DependencyPipe implements Serializable {
         return synFactory;
     }
 
-    private double[] unknownWv = null;
-		
     private String[] types;					// array that maps label index to label string
 
     public String[] getTypes() {
@@ -68,7 +64,7 @@ public class DependencyPipe implements Serializable {
 	DependencyPipe(Options options)
 	{
 		dictionaries = new DictionarySet();
-		synFactory = new SyntacticFeatureFactory(options);
+		synFactory = new SyntacticFeatureFactory();
 		
 		this.options = options;
 				
@@ -175,7 +171,7 @@ public class DependencyPipe implements Serializable {
 	{
 	
 		createDictionaries(file);
-		
+
 		long start = System.currentTimeMillis();
 		System.out.print("Creating Alphabet ... ");
 		

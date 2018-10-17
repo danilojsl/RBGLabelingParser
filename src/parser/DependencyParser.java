@@ -106,15 +106,13 @@ class DependencyParser implements Serializable {
         	param.add(parameters.getV());
         	param.add(parameters.getWL());
         	tensor.decompose(param);
-        	if (options.isUseGP()) {
-        		ArrayList<float[][]> param2 = new ArrayList<>();
-        		param2.add(parameters.getU2());
-        		param2.add(parameters.getV2());
-        		param2.add(parameters.getW2());
-            	param2.add(parameters.getX2L());
-            	param2.add(parameters.getY2L());
-            	tensor2.decompose(param2);
-        	}
+        	ArrayList<float[][]> param2 = new ArrayList<>();
+        	param2.add(parameters.getU2());
+        	param2.add(parameters.getV2());
+        	param2.add(parameters.getW2());
+        	param2.add(parameters.getX2L());
+        	param2.add(parameters.getY2L());
+        	tensor2.decompose(param2);
         	parameters.assignTotal();
         	parameters.printStat();
         	

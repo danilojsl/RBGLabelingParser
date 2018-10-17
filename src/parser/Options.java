@@ -11,7 +11,6 @@ public class Options implements Serializable {
 	String predFile = "example.pred";
 	String unimapFile = null;
 	String outFile = "example.out";
-	String wordVectorFile = null;
 	String modelFile = "example.model";
 	private String format = "CONLL-09";
 
@@ -26,18 +25,6 @@ public class Options implements Serializable {
 	float gammaLabel = 0;
 	int rankFirstOrderTensor = 50;
 	int rankSecondOrderTensor = 30;
-	
-	// feature set
-	private int bits = 30;
-	private boolean useGP = true;		// use grandparent
-
-    public int getBits() {
-        return bits;
-    }
-
-    public boolean isUseGP() {
-        return useGP;
-    }
 
     public Options() {
 
@@ -48,7 +35,6 @@ public class Options implements Serializable {
         this.predFile = options.predFile;
         this.unimapFile = options.unimapFile;
         this.outFile = options.outFile;
-        this.wordVectorFile = options.wordVectorFile;
         this.modelFile = options.modelFile;
         this.format = options.format;
 
@@ -59,9 +45,6 @@ public class Options implements Serializable {
 		this.gammaLabel = options.gammaLabel;
 		this.rankFirstOrderTensor = options.rankFirstOrderTensor;
 		this.rankSecondOrderTensor = options.rankSecondOrderTensor;
-
-		this.bits = options.bits;
-		this.useGP = options.useGP;
 	}
 
 	static Options newInstance(Options options){
@@ -80,13 +63,9 @@ public class Options implements Serializable {
         System.out.println("Regularization: " + regularization);
         System.out.println("rankFirstOrderTensor: " + rankFirstOrderTensor);
         System.out.println("rankSecondOrderTensor: " + rankSecondOrderTensor);
-        System.out.println("word-vector:" + wordVectorFile);
         System.out.println("file format: " + format);
-        System.out.println("feature hash bits: " + bits);
 
         System.out.println();
-        System.out.println("use grandparent: " + useGP);
-
     	System.out.println("------\n");
     }
     

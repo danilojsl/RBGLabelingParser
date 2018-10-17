@@ -11,7 +11,6 @@ public class Parameters implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private boolean useGP;
 	private float regularization;
 	private float gammaLabel;
 
@@ -121,8 +120,7 @@ public class Parameters implements Serializable {
 		numberWordFeatures = pipe.getSynFactory().getNumWordFeats();
 		T = pipe.getTypes().length;
 		DL = T * 3;
-        useGP = options.isUseGP();
-		regularization = options.regularization;
+        regularization = options.regularization;
 		gammaLabel = options.gammaLabel;
 		rankFirstOrderTensor = options.rankFirstOrderTensor;
 		rankSecondOrderTensor = options.rankSecondOrderTensor;
@@ -140,24 +138,23 @@ public class Parameters implements Serializable {
 		dU = new FeatureVector[rankFirstOrderTensor];
 		dV = new FeatureVector[rankFirstOrderTensor];
 		dWL = new FeatureVector[rankFirstOrderTensor];
-		
-		if (useGP) {
-			U2 = new float[numberWordFeatures][rankSecondOrderTensor];
-			V2 = new float[numberWordFeatures][rankSecondOrderTensor];
-			W2 = new float[numberWordFeatures][rankSecondOrderTensor];
-			X2L = new float[DL][rankSecondOrderTensor];
-			Y2L = new float[DL][rankSecondOrderTensor];
-			totalU2 = new float[numberWordFeatures][rankSecondOrderTensor];
-			totalV2 = new float[numberWordFeatures][rankSecondOrderTensor];
-			totalW2 = new float[numberWordFeatures][rankSecondOrderTensor];
-			totalX2L = new float[DL][rankSecondOrderTensor];
-			totalY2L = new float[DL][rankSecondOrderTensor];
-			dU2 = new FeatureVector[rankSecondOrderTensor];
-			dV2 = new FeatureVector[rankSecondOrderTensor];
-			dW2 = new FeatureVector[rankSecondOrderTensor];
-			dX2L = new FeatureVector[rankSecondOrderTensor];
-			dY2L = new FeatureVector[rankSecondOrderTensor];
-		}
+
+		U2 = new float[numberWordFeatures][rankSecondOrderTensor];
+		V2 = new float[numberWordFeatures][rankSecondOrderTensor];
+		W2 = new float[numberWordFeatures][rankSecondOrderTensor];
+		X2L = new float[DL][rankSecondOrderTensor];
+		Y2L = new float[DL][rankSecondOrderTensor];
+		totalU2 = new float[numberWordFeatures][rankSecondOrderTensor];
+		totalV2 = new float[numberWordFeatures][rankSecondOrderTensor];
+		totalW2 = new float[numberWordFeatures][rankSecondOrderTensor];
+		totalX2L = new float[DL][rankSecondOrderTensor];
+		totalY2L = new float[DL][rankSecondOrderTensor];
+		dU2 = new FeatureVector[rankSecondOrderTensor];
+		dV2 = new FeatureVector[rankSecondOrderTensor];
+		dW2 = new FeatureVector[rankSecondOrderTensor];
+		dX2L = new FeatureVector[rankSecondOrderTensor];
+		dY2L = new FeatureVector[rankSecondOrderTensor];
+
 	}
 	
 	private void copyValue(float[][] target, float[][] source)
@@ -172,13 +169,12 @@ public class Parameters implements Serializable {
 		copyValue(totalU, U);
 		copyValue(totalV, V);
 		copyValue(totalWL, WL);
-		if (useGP) {
-			copyValue(totalU2, U2);
-			copyValue(totalV2, V2);
-			copyValue(totalW2, W2);
-			copyValue(totalX2L, X2L);
-			copyValue(totalY2L, Y2L);
-		}
+
+		copyValue(totalU2, U2);
+		copyValue(totalV2, V2);
+		copyValue(totalW2, W2);
+		copyValue(totalX2L, X2L);
+		copyValue(totalY2L, Y2L);
 
 	}
 	
@@ -196,15 +192,15 @@ public class Parameters implements Serializable {
 			assignColumn(V, i, Utils.getRandomUnitVector(numberWordFeatures));
 			assignColumn(WL, i, Utils.getRandomUnitVector(DL));
 		}
-		if (useGP) {
-			for (int i = 0; i < rankSecondOrderTensor; ++i) {
-				assignColumn(U2, i, Utils.getRandomUnitVector(numberWordFeatures));
-				assignColumn(V2, i, Utils.getRandomUnitVector(numberWordFeatures));
-				assignColumn(W2, i, Utils.getRandomUnitVector(numberWordFeatures));
-				assignColumn(X2L, i, Utils.getRandomUnitVector(DL));
-				assignColumn(Y2L, i, Utils.getRandomUnitVector(DL));
-			}
+
+		for (int i = 0; i < rankSecondOrderTensor; ++i) {
+			assignColumn(U2, i, Utils.getRandomUnitVector(numberWordFeatures));
+			assignColumn(V2, i, Utils.getRandomUnitVector(numberWordFeatures));
+			assignColumn(W2, i, Utils.getRandomUnitVector(numberWordFeatures));
+			assignColumn(X2L, i, Utils.getRandomUnitVector(DL));
+			assignColumn(Y2L, i, Utils.getRandomUnitVector(DL));
 		}
+
 		assignTotal();
 	}
 	
@@ -236,13 +232,13 @@ public class Parameters implements Serializable {
 		averageTensor(V, totalV, T, c);
 		averageTensor(WL, totalWL, T, c);
 		
-		if (useGP) {
-			averageTensor(U2, totalU2, T, c);
-			averageTensor(V2, totalV2, T, c);
-			averageTensor(W2, totalW2, T, c);
-			averageTensor(X2L, totalX2L, T, c);
-			averageTensor(Y2L, totalY2L, T, c);
-		}
+
+		averageTensor(U2, totalU2, T, c);
+		averageTensor(V2, totalV2, T, c);
+		averageTensor(W2, totalW2, T, c);
+		averageTensor(X2L, totalX2L, T, c);
+		averageTensor(Y2L, totalY2L, T, c);
+
 	}
 
 	private void printStat(float[][] a, String s) 
@@ -264,13 +260,13 @@ public class Parameters implements Serializable {
 		printStat(V, "V");
 		printStat(WL, "WL");
 
-		if (useGP) {
-			printStat(U2, "U2");
-			printStat(V2, "V2");
-			printStat(W2, "W2");
-			printStat(X2L, "X2L");
-			printStat(Y2L, "Y2L");
-		}
+
+		printStat(U2, "U2");
+		printStat(V2, "V2");
+		printStat(W2, "W2");
+		printStat(X2L, "X2L");
+		printStat(Y2L, "Y2L");
+
 	}
 	
 	private void projectMat(float[][] mat, FeatureVector fv, float[] proj)
@@ -390,40 +386,38 @@ public class Parameters implements Serializable {
         	dWL[k] = dWLk;
     	}
     	
-    	if (useGP) {
-	    	// update U2
-	    	for (int k = 0; k < rankSecondOrderTensor; ++k) {
-	    		FeatureVector dU2k = getdU2L(k, localFeatureData, actDeps, actLabs, predictedLabels);
-	        	l2norm += dU2k.squaredL2NormUnsafe() * (1- gammaLabel) * (1- gammaLabel);
-	        	for (int u = 0, n = dU2k.size(); u < n; ++u)
-	        		loss -= U2[dU2k.x(u)][k] * dU2k.value(u) * (1- gammaLabel);
-	        	dU2[k] = dU2k;
-	    	}
-	    	// update V2
-	    	for (int k = 0; k < rankSecondOrderTensor; ++k) {
-	    		FeatureVector dV2k = getdV2L(k, localFeatureData, actDeps, actLabs, predictedLabels);
-	        	l2norm += dV2k.squaredL2NormUnsafe() * (1- gammaLabel) * (1- gammaLabel);
-	        	dV2[k] = dV2k;
-	    	} 
-	    	// update W2
-	    	for (int k = 0; k < rankSecondOrderTensor; ++k) {
-	    		FeatureVector dW2k = getdW2L(k, localFeatureData, actDeps, actLabs, predictedLabels);
-	        	l2norm += dW2k.squaredL2NormUnsafe() * (1- gammaLabel) * (1- gammaLabel);
-	        	dW2[k] = dW2k;
-	    	}
-	    	// update X2L
-	    	for (int k = 0; k < rankSecondOrderTensor; ++k) {
-	    		FeatureVector dX2Lk = getdX2L(k, localFeatureData, actDeps, actLabs, predictedLabels);
-	        	l2norm += dX2Lk.squaredL2NormUnsafe() * (1- gammaLabel) * (1- gammaLabel);
-	        	dX2L[k] = dX2Lk;
-	    	}
-	    	// update Y2L
-	    	for (int k = 0; k < rankSecondOrderTensor; ++k) {
-	    		FeatureVector dY2Lk = getdY2L(k, localFeatureData, actDeps, actLabs, predictedLabels);
-	        	l2norm += dY2Lk.squaredL2NormUnsafe() * (1- gammaLabel) * (1- gammaLabel);
-	        	dY2L[k] = dY2Lk;
-	    	}
-    	}
+    	// update U2
+		for (int k = 0; k < rankSecondOrderTensor; ++k) {
+			FeatureVector dU2k = getdU2L(k, localFeatureData, actDeps, actLabs, predictedLabels);
+			l2norm += dU2k.squaredL2NormUnsafe() * (1 - gammaLabel) * (1 - gammaLabel);
+			for (int u = 0, n = dU2k.size(); u < n; ++u)
+				loss -= U2[dU2k.x(u)][k] * dU2k.value(u) * (1 - gammaLabel);
+			dU2[k] = dU2k;
+		}
+		// update V2
+		for (int k = 0; k < rankSecondOrderTensor; ++k) {
+			FeatureVector dV2k = getdV2L(k, localFeatureData, actDeps, actLabs, predictedLabels);
+			l2norm += dV2k.squaredL2NormUnsafe() * (1 - gammaLabel) * (1 - gammaLabel);
+			dV2[k] = dV2k;
+		}
+		// update W2
+		for (int k = 0; k < rankSecondOrderTensor; ++k) {
+			FeatureVector dW2k = getdW2L(k, localFeatureData, actDeps, actLabs, predictedLabels);
+			l2norm += dW2k.squaredL2NormUnsafe() * (1 - gammaLabel) * (1 - gammaLabel);
+			dW2[k] = dW2k;
+		}
+		// update X2L
+		for (int k = 0; k < rankSecondOrderTensor; ++k) {
+			FeatureVector dX2Lk = getdX2L(k, localFeatureData, actDeps, actLabs, predictedLabels);
+			l2norm += dX2Lk.squaredL2NormUnsafe() * (1 - gammaLabel) * (1 - gammaLabel);
+			dX2L[k] = dX2Lk;
+		}
+		// update Y2L
+		for (int k = 0; k < rankSecondOrderTensor; ++k) {
+			FeatureVector dY2Lk = getdY2L(k, localFeatureData, actDeps, actLabs, predictedLabels);
+			l2norm += dY2Lk.squaredL2NormUnsafe() * (1 - gammaLabel) * (1 - gammaLabel);
+			dY2L[k] = dY2Lk;
+		}
         
         float alpha = loss/l2norm;
     	alpha = Math.min(regularization, alpha);
@@ -440,13 +434,13 @@ public class Parameters implements Serializable {
 			addTensor(U, totalU, dU, coeff, coeff2);
 			addTensor(V, totalV, dV, coeff, coeff2);
 			addTensor(WL, totalWL, dWL, coeff, coeff2);
-			if (useGP) {
-				addTensor(U2, totalU2, dU2, coeff, coeff2);
-				addTensor(V2, totalV2, dV2, coeff, coeff2);
-				addTensor(W2, totalW2, dW2, coeff, coeff2);
-				addTensor(X2L, totalX2L, dX2L, coeff, coeff2);
-				addTensor(Y2L, totalY2L, dY2L, coeff, coeff2);
-			}
+
+			addTensor(U2, totalU2, dU2, coeff, coeff2);
+			addTensor(V2, totalV2, dV2, coeff, coeff2);
+			addTensor(W2, totalW2, dW2, coeff, coeff2);
+			addTensor(X2L, totalX2L, dX2L, coeff, coeff2);
+			addTensor(Y2L, totalY2L, dY2L, coeff, coeff2);
+
     	}
     	return loss;
 	}
